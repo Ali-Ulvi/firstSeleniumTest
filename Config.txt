@@ -22,7 +22,7 @@ paket_kac_gunluk=30
 
 Yenilemeli_ise_Bakiyesiz_Alim_var_mi=evet
 
-#TC ID doldurulursa TCli akis secilir:
+#TC ID doldurulursa TCli akis secilir:    
 TCID=
 #kalanAkisi yoksa SMSini bos birakiniz, boylece test edilmeyecektir
 kalanSMS=DOLU 3GB Paketi kapsaminda DD/MM/YYYY tarihine kadar kullanabileceginiz yurt ici her yone 750 dk, her yone 1000 SMS ve 3072 MB cepten internet kullanim hakkiniz bulunmaktadir.
