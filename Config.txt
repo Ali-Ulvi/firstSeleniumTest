@@ -8,7 +8,7 @@ NT_Fiyat=27
 #bos birakilirsa kontrol edilmez
 yenilemeli_ise_NT_servis_ismi=PP_Dolu3GBNTService_01381
 
-#NonNt parametreleri bos birakilirsa test atlanir.  
+#NonNt parametreleri bos birakilirsa test atlanir.
 NonNT_msisdn=5050000881
 NonNT_Kayit_Mesaji=DOLU 3GB Paketiniz 30 TL'ye hattiniza tanimlanmistir. 30 gun boyunca yurt icinde gecerli her yone 750 dakika, her yone 1000 SMS ve 3 GB cepten internetinizi DD/MM/YYYY saat HH:MI'a kadar kullanabilirsiniz.
 NonNT_Fiyat=30
