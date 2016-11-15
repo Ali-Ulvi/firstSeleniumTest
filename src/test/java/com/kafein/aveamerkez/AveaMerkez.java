@@ -48,41 +48,7 @@ public class AveaMerkez {
     static WebDriver driver;
     static Sil sil,silNonNT;
 
-
-    @BeforeClass
-    public static void eraser(){
-        sil=new Sil(msisdn);
-        silNonNT=new Sil(NonNT_msisdn);
-                sil.start();
-                silNonNT.start();
-    }
-    @BeforeClass
-    public static void drive() throws MalformedURLException {
-        //Step 1- Driver Instantiation: Instantiate driver object as FirefoxDriver
-        System.setProperty("webdriver.gecko.driver", gecko);
-        // System.setProperty("webdriver.chrome.driver", "C:\\geckodriver-v0.11.1-win64\\chromedriver.exe");
-
-        driver = new FirefoxDriver();
-
-        //  driver = new ChromeDriver();
-      /*  ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized");
-        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-      */
-        // driver = new RemoteWebDriver(new URL("http://127.0.0.1:4444"), DesiredCapabilities.firefox());
-        driver.navigate().to(url);
-
-    }
-
-    //@AfterClass
-    public static void clean() {
-
-        driver.close();
-        driver.quit();
-    }
-
-    @BeforeClass
+ @BeforeClass
     public static void loadProps() {
 
         System.out.println("@BeforeClass: onceExecutedBeforeAll to read config");
@@ -148,6 +114,41 @@ public class AveaMerkez {
 
 
     }
+    
+    @BeforeClass
+    public static void eraser(){
+        sil=new Sil(msisdn);
+        silNonNT=new Sil(NonNT_msisdn);
+                sil.start();
+                silNonNT.start();
+    }
+    @BeforeClass
+    public static void drive() throws MalformedURLException {
+        //Step 1- Driver Instantiation: Instantiate driver object as FirefoxDriver
+        System.setProperty("webdriver.gecko.driver", gecko);
+        // System.setProperty("webdriver.chrome.driver", "C:\\geckodriver-v0.11.1-win64\\chromedriver.exe");
+
+        driver = new FirefoxDriver();
+
+        //  driver = new ChromeDriver();
+      /*  ChromeOptions options = new ChromeOptions();
+        options.addArguments("--start-maximized");
+        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+      */
+        // driver = new RemoteWebDriver(new URL("http://127.0.0.1:4444"), DesiredCapabilities.firefox());
+        driver.navigate().to(url);
+
+    }
+
+    //@AfterClass
+    public static void clean() {
+
+        driver.close();
+        driver.quit();
+    }
+
+   
 
 
     //We should add @Test annotation that JUnit will run below method
