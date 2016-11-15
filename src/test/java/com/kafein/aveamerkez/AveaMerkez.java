@@ -44,8 +44,18 @@ import static org.junit.Assume.assumeTrue;
 public class AveaMerkez {
     static String user, pw, url, pack, kayitSms, gecko, tur, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
     static String master, NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
+    static String ip,mrte1Pw,temizle;
     static WebDriver driver;
+    static Sil sil,silNonNT;
 
+
+    @BeforeClass
+    public static void eraser(){
+        sil=new Sil(msisdn);
+        silNonNT=new Sil(NonNT_msisdn);
+                sil.start();
+                silNonNT.start();
+    }
     @BeforeClass
     public static void drive() throws MalformedURLException {
         //Step 1- Driver Instantiation: Instantiate driver object as FirefoxDriver
@@ -112,6 +122,9 @@ public class AveaMerkez {
             NT_servis = prop.getProperty("yenilemeli_ise_NT_servis_ismi");
             NonNT_servis = prop.getProperty("yenilemeli_ise_NonNT_servis_ismi");
             bakiyesizAlim = prop.getProperty("Yenilemeli_ise_Bakiyesiz_Alim_var_mi");
+            ip = prop.getProperty("mrte1_IP");
+            mrte1Pw = prop.getProperty("mrte1_Sifre");
+            temizle = prop.getProperty("Aboneler_Once_Temizlensin_mi");
             Enumeration<?> e = prop.propertyNames();
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
@@ -172,8 +185,10 @@ public class AveaMerkez {
         //try {
 
         WebElement paketListesi = null;
+
         txtBox.sendKeys(msisdn);
         Thread.sleep(2000);
+        sil.join(4*60*1000);
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);
@@ -529,6 +544,7 @@ public class AveaMerkez {
         WebElement paketListesi = null;
         txtBox.sendKeys(NonNT_msisdn);
         Thread.sleep(2000);
+        silNonNT.join(4*60*1000);
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);

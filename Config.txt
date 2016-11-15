@@ -13,6 +13,8 @@ NonNT_msisdn=5050000881
 NonNT_Kayit_Mesaji=DOLU 3GB Paketiniz 30 TL'ye hattiniza tanimlanmistir. 30 gun boyunca yurt icinde gecerli her yone 750 dakika, her yone 1000 SMS ve 3 GB cepten internetinizi DD/MM/YYYY saat HH:MI'a kadar kullanabilirsiniz.
 NonNT_Fiyat=30
 
+Aboneler_Once_Temizlensin_mi=evet
+
 #bos birakilirsa kontrol edilmez
 yenilemeli_ise_NonNT_servis_ismi=PP_Dolu3GBNonNTService_01382
 
@@ -39,6 +41,10 @@ NONNT_yetersizBakiye_KayitSMS=Degerli musterimiz, hattinizda yeterli TL bulunmad
 user=071111
 sifre=12345
 url=http://10.248.66.62:7002/aveamerkez2/salePackages.vas
+
+mrte1_IP=10.248.68.127
+mrte1_Sifre=mrte1123
+
 
 #Firefox Driver internetten indirilebilir: https://github.com/mozilla/geckodriver/releases   örnegin: geckodriver-v0.11.1-win32.zip. Firefoxunuz da cok eski olmamali
 Firefox_Driver_Path=C:\\geckodriver.exe
