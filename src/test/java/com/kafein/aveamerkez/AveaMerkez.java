@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 
@@ -326,6 +327,7 @@ public class AveaMerkez {
         new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(".//td[text()=\"" + pack + "\"]/preceding-sibling::td/input")));
         Thread.sleep(3000);
         fluentWait(By.className("clsInputLabel"));
+        checkServiceNotExist(msisdn,NT_servis);
         List<WebElement> messages = driver.findElements(By.className("clsInputLabel"));
         for (WebElement ms : messages) {
             System.out.println(ms.getText());
@@ -638,7 +640,6 @@ public class AveaMerkez {
     public void test6_NonNT_kalan() throws Exception {
 
         assumeTrue(!kalanSMS.isEmpty());
-        assumeTrue(!yetersizBakiyeKayitSMS.isEmpty() && !yetersizBakiyemsisdn.isEmpty());
         fluentWait(By.xpath(".//td[text()=\"" + pack + "\"]/preceding-sibling::td/input")).click();
         master = driver.getWindowHandle();
         fluentWait(By.xpath(".//td[text()=\"" + pack + "\"]/following-sibling::td/input")).click();
@@ -647,7 +648,7 @@ public class AveaMerkez {
             Thread.sleep(250);
             if (cnt > 44) break;
         }
-        System.out.println(driver.getWindowHandles().size());
+        System.out.println("Window Count:"+driver.getWindowHandles().size());
         Set<String> windowId = driver.getWindowHandles();    // get  window id of current window
         Iterator<String> itererator = windowId.iterator();
         String mainWinID = itererator.next();
@@ -664,7 +665,6 @@ public class AveaMerkez {
     public void test7_NonNT_iptal() throws Exception {
 
         assumeTrue(!iptalSMS.isEmpty());
-        assumeTrue(!yetersizBakiyeKayitSMS.isEmpty() && !yetersizBakiyemsisdn.isEmpty());
         Set<String> windowId = driver.getWindowHandles();    // get  window id of current window
         Iterator<String> itererator = windowId.iterator();
         String mainWinID = itererator.next();
@@ -677,6 +677,7 @@ public class AveaMerkez {
         new WebDriverWait(driver, 66).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(".//td[text()=\"" + pack + "\"]/preceding-sibling::td/input")));
         Thread.sleep(3000);
         fluentWait(By.className("clsInputLabel"));
+        checkServiceNotExist(NonNT_msisdn,NonNT_servis);
         List<WebElement> messages = driver.findElements(By.className("clsInputLabel"));
         for (WebElement ms : messages) {
             System.out.println(ms.getText());
@@ -1083,6 +1084,21 @@ public class AveaMerkez {
                 .matcher(resp);
 
             assumeTrue(servis+" "+state+" bulunamadi",m.find());
+
+    }
+
+
+    public void checkServiceNotExist(String msisdn, String servis) {
+        if (servis.isEmpty()) {
+            System.out.println("INFO: Servis bos birakildigindan kontrol edilmiyor.");
+            return;
+        }
+        String resp = postSOAPXML(msisdn);
+        Matcher m = Pattern.compile("<soldProducts><productName>"+servis+"</productName>").matcher(resp);
+        assumeFalse(servis+" hala abone uzerinde",m.find());
+
+        m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
+        assumeTrue("BSG_10000:SUCCESS alinamadi",m.find());
 
     }
 
