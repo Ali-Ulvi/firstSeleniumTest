@@ -677,6 +677,7 @@ public class AveaMerkez {
         new WebDriverWait(driver, 66).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(".//td[text()=\"" + pack + "\"]/preceding-sibling::td/input")));
         Thread.sleep(3000);
         fluentWait(By.className("clsInputLabel"));
+
         checkServiceNotExist(NonNT_msisdn,NonNT_servis);
         List<WebElement> messages = driver.findElements(By.className("clsInputLabel"));
         for (WebElement ms : messages) {
