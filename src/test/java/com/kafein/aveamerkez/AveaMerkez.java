@@ -96,7 +96,7 @@ public class AveaMerkez {
                 String key = (String) e.nextElement();
                 String value = prop.getProperty(key);
                 if (!key.contentEquals("sifre"))
-                    System.out.println("Key : " + key + "; Value : " + value);
+                    System.out.println( key + " : " + value);
             }
 
         } catch (IOException ex) {
@@ -182,14 +182,19 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
+        //waitForJStoLoad();
+        WebDriverWait wait = new WebDriverWait(driver, 66,200);
+        wait.until(new page_loaded("#searchmsisdn", 1));
+
+        sil.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
 
         WebElement paketListesi = null;
 
         txtBox.sendKeys(msisdn);
-        Thread.sleep(2000);
-        sil.join(4*60*1000);
+        Thread.sleep(1000);
+
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);
@@ -219,7 +224,7 @@ public class AveaMerkez {
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
 
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+        //WebDriverWait wait = new WebDriverWait(driver, 66);
         wait.until(new ElementPopulatedByFilter("#populated", 366));
 
         paketListesi = fluentWait(By.cssSelector("#populated"));
@@ -319,10 +324,11 @@ public class AveaMerkez {
         String newAdwinID = itererator.next();
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText());
+        String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
         driver.close();
         driver.switchTo().window(master);  // switch back to parent window
-        System.out.println("\n test2 paket kalan bitti");
+        System.out.println(sms+"\n test2 paket kalan bitti");
 
     }
 
@@ -539,13 +545,14 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
+        silNonNT.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
 
         WebElement paketListesi = null;
         txtBox.sendKeys(NonNT_msisdn);
         Thread.sleep(2000);
-        silNonNT.join(4*60*1000);
+
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);
@@ -672,9 +679,10 @@ public class AveaMerkez {
         String newAdwinID = itererator.next();
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText());
+        String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
         driver.switchTo().window(master);  // switch back to parent window
-        System.out.println("\n test6 NonNt paket kalan bitti");
+        System.out.println(sms+"\n test6 NonNt paket kalan bitti");
 
     }
 
@@ -1023,6 +1031,39 @@ public class AveaMerkez {
         @Override
         public String toString() {
             return "Paket listesi Yuklemesinde Sorun var?";
+        }
+    }
+
+    private class page_loaded implements ExpectedCondition<Boolean> {
+        private int size;
+        // private Select findBy;
+        private String css;
+
+        //Constructor (Set the given values)
+        public page_loaded(final String css, final int size) {
+            this.css = css;
+            this.size = size;
+        }
+
+        //Override the apply method with your own functionality
+        @Override
+        public Boolean apply(WebDriver webDriver) {
+
+            try {
+                //Check that the element size filtered
+                driver.findElement(By.cssSelector(css));
+                    return false;
+
+            } catch (Exception e) {
+                return true;
+            }
+
+        }
+
+        //This is for log message. I override it because when test fails, it will give us a meaningful message.
+        @Override
+        public String toString() {
+            return "Page Load beklerken hata";
         }
     }
 
