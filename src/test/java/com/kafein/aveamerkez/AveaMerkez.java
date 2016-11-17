@@ -732,8 +732,8 @@ public class AveaMerkez {
             driver.navigate().to(url);
             WebElement txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         } catch (Exception e) {
-            System.err.println("pw girme hatasi " + e.getLocalizedMessage() + e.getMessage());
-            e.printStackTrace();
+            System.err.println("pw girme hatasi.. geciliyor "  );
+
             // driver.close();
             //driver.quit();
         }
