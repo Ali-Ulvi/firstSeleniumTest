@@ -28,7 +28,9 @@ public class PageLoadWaitExample {
         //Click the link
         theLinkToNewPageElement.click();
         WebDriverWait wait = new WebDriverWait(driver, 60, 100);
+        //wait till the old page disappears
         wait.until(ExpectedConditions.stalenessOf(theLinkToNewPageElement));
+        //wait till the new page loads
         wait.until(ExpectedConditions.presenceOfElementLocated(theLinkToNewPage));
         //Page is loaded
     }
