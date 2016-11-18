@@ -30,5 +30,6 @@ public class PageLoadWaitExample {
         WebDriverWait wait = new WebDriverWait(driver, 60, 100);
         wait.until(ExpectedConditions.stalenessOf(theLinkToNewPageElement));
         wait.until(ExpectedConditions.presenceOfElementLocated(theLinkToNewPage));
+        //Page is loaded
     }
 }
