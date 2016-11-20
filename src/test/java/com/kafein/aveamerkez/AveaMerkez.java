@@ -44,7 +44,7 @@ import static org.junit.Assume.assumeTrue;
 public class AveaMerkez {
     static String user, pw, url, pack, kayitSms, gecko, tur, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
     static String master, NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
-    static String ip,mrte1Pw,temizle;
+    static String ip,mrte1Pw,temizle,NonNT_Kayit_Mesaji2,kayitSms2;
     static WebDriver driver;
     static Sil sil,silNonNT;
 
@@ -70,6 +70,7 @@ public class AveaMerkez {
             url = prop.getProperty("url");
             pack = prop.getProperty("Paket_Gorunen_ismi");
             kayitSms = prop.getProperty("NT_Kayit_Mesaji");
+            kayitSms2 = prop.getProperty("NT_Kayit_Mesaji2");
             gecko = prop.getProperty("Firefox_Driver_Path");
             tur = prop.getProperty("Paket_Turu");
             msisdn = prop.getProperty("NTmsisdn");
@@ -82,6 +83,7 @@ public class AveaMerkez {
             NonNtyetersizBakiyeMsisdn = prop.getProperty("NONNT_yetersizBakiye_Msisdn");
             NonNT_msisdn = prop.getProperty("NonNT_msisdn");
             NonNT_Kayit_Mesaji = prop.getProperty("NonNT_Kayit_Mesaji");
+            NonNT_Kayit_Mesaji2 = prop.getProperty("NonNT_Kayit_Mesaji2");
             TCID = prop.getProperty("TCID");
             NonNT_Fiyat = prop.getProperty("NonNT_Fiyat");
             NT_Fiyat = prop.getProperty("NT_Fiyat");
@@ -184,8 +186,9 @@ public class AveaMerkez {
         guncelle.click();
         //waitForJStoLoad();
         WebDriverWait wait = new WebDriverWait(driver, 66,200);
-        wait.until(new page_loaded("#searchmsisdn", 1));
-
+       // wait.until(new page_loaded("#searchmsisdn", 1));
+        wait.until(ExpectedConditions.stalenessOf(guncelle));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
         sil.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
@@ -275,6 +278,7 @@ public class AveaMerkez {
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         checkService(msisdn,NT_servis,"ACTIVE/STD/STD");
         String gun = addDay();
+        kayitSms=kayitSms+kayitSms2;
         kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
@@ -482,6 +486,7 @@ public class AveaMerkez {
         // String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
         //  Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
+        if (bakiyesizAlim.equalsIgnoreCase("evet"))
         checkService(yetersizBakiyemsisdn,NT_servis,"PASSIVE/STD/FOLLOW");
         String gun = addDay();
         yetersizBakiyeKayitSMS = yetersizBakiyeKayitSMS.replaceAll("<BONUS_END_DATE>", gun);
@@ -545,6 +550,8 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
+        WebDriverWait wait = new WebDriverWait(driver, 66,200);
+        wait.until(new page_loaded("#searchmsisdn", 1));
         silNonNT.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
@@ -583,7 +590,7 @@ public class AveaMerkez {
 
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+         wait = new WebDriverWait(driver, 66);
         wait.until(new ElementPopulatedByFilter("#populated", 366));
         paketListesi = fluentWait(By.cssSelector("#populated"));
         Select ses = new Select(paketListesi);
@@ -631,6 +638,7 @@ public class AveaMerkez {
         checkService(NonNT_msisdn,NonNT_servis,"ACTIVE/STD/STD");
 
         String gun = addDay();
+        NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji+NonNT_Kayit_Mesaji2;
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replaceAll("<BONUS_END_DATE>", gun);
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
@@ -849,7 +857,7 @@ public class AveaMerkez {
         // Now create matcher object.
         Matcher m = r.matcher(message2);
         System.out.println("Beklenen regex Patterni:" + pattern);
-
+        if (bakiyesizAlim.equalsIgnoreCase("evet"))
         checkService(NonNtyetersizBakiyeMsisdn,NonNT_servis,"PASSIVE/STD/FOLLOW");
 
         Assert.assertTrue("NonNT_yetersizBakiyeKayit Mesaji yanlis..:" + message2, m.matches());
