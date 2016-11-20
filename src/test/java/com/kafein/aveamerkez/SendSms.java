@@ -1,10 +1,7 @@
 package com.kafein.aveamerkez;
 
 import com.google.common.base.Function;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -12,7 +9,6 @@ import org.openqa.selenium.support.ui.Wait;
 
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
-
 
 
 /**
@@ -26,19 +22,28 @@ public class SendSms {
     static WebElement tx;
     static WebElement bt;
     static WebElement kn;
+
     public void sendSms(String no, String KN, String sms) throws Exception {
         if (driver == null) {
             driver = new RemoteWebDriver(new URL("http://127.0.0.1:9515"), DesiredCapabilities.chrome());
+            try {
             driver.navigate().to("http://10.248.68.40:7015/KafeinTestMaster/fsk/acme/SmsGonder.xhtml");
+            } catch (Exception e) {
+                Alert alert = driver.switchTo().alert();
+                alert.dismiss();
+                System.out.println("Sifre pop-up'i kapatildi");
+                driver.navigate().to("http://10.248.68.40:7015/KafeinTestMaster/fsk/acme/SmsGonder.xhtml");
+
+            }
             if (c.kanal.equalsIgnoreCase("promo")) //promo or ir
                 fluentWait(By.cssSelector("#j_idt20\\3a j_idt22\\3a 1")).click();
             else
                 fluentWait(By.cssSelector("#j_idt20\\3a j_idt22\\3a 0")).click();
-           //fields
-            msisdn=driver.findElement(By.cssSelector("#j_idt20\\3a msisdn"));
-            tx=driver.findElement(By.cssSelector("#j_idt20\\3a smsText"));
-            bt=driver.findElement(By.cssSelector("#j_idt20\\3a j_idt33"));
-            kn=driver.findElement(By.cssSelector("#j_idt20\\3a shortNumberw"));
+            //fields
+            msisdn = driver.findElement(By.cssSelector("#j_idt20\\3a msisdn"));
+            tx = driver.findElement(By.cssSelector("#j_idt20\\3a smsText"));
+            bt = driver.findElement(By.cssSelector("#j_idt20\\3a j_idt33"));
+            kn = driver.findElement(By.cssSelector("#j_idt20\\3a shortNumberw"));
         }
         //clear
         msisdn.clear();
@@ -49,8 +54,8 @@ public class SendSms {
         kn.sendKeys(KN);
         tx.sendKeys(sms);
 
-        bt.click( );
-        Thread.sleep(Long.parseLong(c.sleep)*1000);
+        bt.click();
+        Thread.sleep(Long.parseLong(c.sleep) * 1000);
 
     }
 

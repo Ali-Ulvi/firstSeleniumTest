@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
@@ -73,7 +74,7 @@ public class AveaSMSKanali {
 
 
     @Test
-    public void Test1_KayitSMS() throws Exception {
+    public void Test01_KayitSMS() throws Exception {
         BigDecimal money = getMoney(c.msisdn);
 
         sil.join(4 * 60 * 1000);
@@ -132,16 +133,18 @@ public class AveaSMSKanali {
 
             Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
 
+        }else{
+            Assert.assertEquals("2. Kayit SMSi gelmedi","",c.kayitSms2);
         }
         System.out.println("\n test1 Kayit SMS bitti");
 
     }
 
     @Test
-    public void Test2_KalanSMS() throws Exception{
+    public void Test02_KalanSMS() throws Exception {
         assumeTrue(!c.kalanSMS.isEmpty());
         log.startPromoLog(c.msisdn);
-        sms.sendSms(c.msisdn, c.kn, "KALAN "+c.kw);
+        sms.sendSms(c.msisdn, c.kn, "KALAN " + c.kw);
         List<String> smsler = log.getPromoLog(c.msisdn);
         Iterator<String> iterator = smsler.iterator();
         String gidenSms1 = iterator.next();
@@ -149,11 +152,392 @@ public class AveaSMSKanali {
 
         if (iterator.hasNext()) {
             String gidenSms2 = iterator.next();
-            System.err.println("Giden 2. SMS: "+gidenSms2);
-            assumeTrue("Kalan sorgusunda Promo'dan birden fazla SMS gidiyor. Promo loguna bakiniz",false);
+            System.err.println("Giden 2. SMS: " + gidenSms2);
+            assumeTrue("Kalan sorgusunda Promo'dan birden fazla SMS gidiyor. Promo loguna bakiniz", false);
 
         }
-        System.out.println(sms+"\n test2 paket kalan SMS bitti");
+        System.out.println(sms + "\n test2 paket kalan SMS bitti");
+
+    }
+
+    @Test
+    public void Test03_iptalSMS() throws Exception {
+
+        assumeTrue(!c.iptalSMS.isEmpty());
+        Log.log.startAsbLog(c.msisdn);
+
+        sms.sendSms(c.msisdn, c.kn, "IPTAL " + c.kw);
+        String gun = addDay();
+        String iptalSMS = c.iptalSMS;
+        iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
+        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
+
+        System.out.println("Beklenen iptal SMSi: \n" + iptalSMS);
+        //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+        String pattern = "\\s?\\s?\\s?" + iptalSMS + "\\.?\\.?\\.?\\s?\\s?\\s?";
+        checkServiceNotExist(c.msisdn, c.NT_servis);
+
+        List<String> smsler = log.getAsbLog(c.msisdn);
+        Iterator<String> iterator = smsler.iterator();
+        assertThat(iterator.next(), RegexMatcher.matchesRegex(pattern));
+
+        if (iterator.hasNext()) {
+
+            String gidenSms2 = iterator.next();
+            System.err.println("iptalde giden 2. SMS: " + gidenSms2);
+            assumeTrue("iptalde ASB'den birden fazla SMS gidiyor. ASB loguna bakiniz", false);
+
+        }
+        System.out.println("\n test3 iptal SMS bitti");
+
+    }
+
+    @Test
+    public void Test04_iptal_edilecek_paketi_yoksa_SMSi() throws Exception {
+
+        assumeTrue(!c.iptal_edilecek_paketi_yoksa_SMSi.isEmpty());
+        Log.log.startAsbLog(c.msisdn);
+
+        sms.sendSms(c.msisdn, c.kn, "IPTAL " + c.kw);
+        checkServiceNotExist(c.msisdn, c.NT_servis);
+        String gun = addDay();
+        String iptalSMS = c.iptal_edilecek_paketi_yoksa_SMSi;
+        iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
+        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
+
+        System.out.println("Beklenen iptal_edilecek_paketi_yoksa_SMSi: \n" + iptalSMS);
+        String pattern = "\\s?\\s?\\s?" + iptalSMS + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+        List<String> smsler = log.getAsbLog(c.msisdn);
+        Iterator<String> iterator = smsler.iterator();
+        assertThat(iterator.next(), RegexMatcher.matchesRegex(pattern));
+
+        if (iterator.hasNext()) {
+
+            String gidenSms2 = iterator.next();
+            System.err.println("iptalde giden 2. SMS: " + gidenSms2);
+            assumeTrue("iptalde ASB'den birden fazla SMS gidiyor. ASB loguna bakiniz", false);
+
+        }
+        System.out.println("\n test4 iptal_edilecek_paketi_yoksa_SMSi bitti");
+
+    }
+
+    @Test
+    public void Test05_Pakete_birden_fazla_kez_KayitSMS() throws Exception {
+        if (c.Paketi_zaten_var_SMSi.isEmpty()) {
+            BigDecimal money = getMoney(c.msisdn);
+            Log.log.startAsbLog(c.msisdn);
+            if (!c.TCID.isEmpty())
+                sms.sendSms(c.msisdn, c.kn, c.kw + " " + c.TCID);
+            else
+                sms.sendSms(c.msisdn, c.kn, c.kw);
+
+            checkService(c.msisdn, c.NT_servis, "ACTIVE/STD/STD");
+            BigDecimal moneyAfter = getMoney(c.msisdn);
+            BigDecimal fiyat = money.subtract(moneyAfter);
+            Assert.assertEquals(c.NT_Fiyat + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(c.NT_Fiyat).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+            List<String> smsler = log.getAsbLog(c.msisdn);
+            Iterator<String> iterator = smsler.iterator();
+
+            String gun = addDay();
+            String kayitSms = c.kayitSms;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+            String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+            // Create a Pattern object
+            Pattern r = Pattern.compile(pattern);
+            String gidenSms1 = iterator.next();
+            // Now create matcher object.
+            Matcher m = r.matcher(gidenSms1);
+            Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+            if (iterator.hasNext()) {
+                kayitSms = c.kayitSms2;
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+                System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+                //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+                pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+                // Create a Pattern object
+                r = Pattern.compile(pattern);
+                String gidenSms2 = iterator.next();
+                // Now create matcher object.
+                m = r.matcher(gidenSms2);
+
+                Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+            }
+            System.out.println("\n test5 birden fazla Kayit SMS bitti");
+
+        } else {//1den fazla kez alamaz,
+            BigDecimal money = getMoney(c.msisdn);
+
+
+            Log.log.startAsbLog(c.msisdn);
+            if (!c.TCID.isEmpty())
+                sms.sendSms(c.msisdn, c.kn, c.kw + " " + c.TCID);
+            else
+                sms.sendSms(c.msisdn, c.kn, c.kw);
+
+            checkService(c.msisdn, c.NT_servis, "ACTIVE/STD/STD");
+
+
+            BigDecimal moneyAfter = getMoney(c.msisdn);
+            BigDecimal fiyat = money.subtract(moneyAfter);
+            Assert.assertEquals(0 + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(0).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+            List<String> smsler = log.getAsbLog(c.msisdn);
+            Iterator<String> iterator = smsler.iterator();
+
+            String gun = addDay();
+            String kayitSms = c.Paketi_zaten_var_SMSi;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+            String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+            // Create a Pattern object
+            Pattern r = Pattern.compile(pattern);
+            String gidenSms1 = iterator.next();
+            // Now create matcher object.
+            Matcher m = r.matcher(gidenSms1);
+
+            Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+            if (iterator.hasNext()) {
+                kayitSms = c.kayitSms2;
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+                System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+                pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+                // Create a Pattern object
+                r = Pattern.compile(pattern);
+                String gidenSms2 = iterator.next();
+                // Now create matcher object.
+                m = r.matcher(gidenSms2);
+
+                Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+            }
+            System.out.println("\n test5 birden fazla alamaz Kayit SMSi bitti");
+
+        }
+    }
+
+    @Test
+    public void Test06_Yetersiz_BakiyeKayitSMS() throws Exception {
+        BigDecimal money = getMoney(c.yetersizBakiyemsisdn);
+
+        Log.log.startAsbLog(c.yetersizBakiyemsisdn);
+        if (!c.TCID.isEmpty())
+            sms.sendSms(c.yetersizBakiyemsisdn, c.kn, c.kw + " " + c.TCID);
+        else
+            sms.sendSms(c.yetersizBakiyemsisdn, c.kn, c.kw);
+
+        BigDecimal moneyAfter = getMoney(c.yetersizBakiyemsisdn);
+        BigDecimal fiyat = money.subtract(moneyAfter);
+        Assert.assertEquals(0 + " TL dusmesi gerekirken " + fiyat + " TL dustu. campaigns_rules_map_tab fiyati yanlis olabilir.", Double.parseDouble(new BigDecimal(0).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+        List<String> smsler = log.getAsbLog(c.yetersizBakiyemsisdn);
+        Iterator<String> iterator = smsler.iterator();
+
+        String gun = addDay();
+        String kayitSms = c.yetersizBakiyeKayitSMS;
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+        System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+
+        String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
+        String gidenSms1 = iterator.next();
+        // Now create matcher object.
+        Matcher m = r.matcher(gidenSms1);
+
+        Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+        if (iterator.hasNext()) {
+            kayitSms = c.kayitSms2;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+            //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+            pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+            // Create a Pattern object
+            r = Pattern.compile(pattern);
+            String gidenSms2 = iterator.next();
+            // Now create matcher object.
+            m = r.matcher(gidenSms2);
+
+            Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+        }
+        System.out.println("\n test6 yetersiz bakiye Kayit SMSi bitti");
+
+    }
+
+    @Test
+    public void Test07_NonNT_KayitSMS() throws Exception {
+        BigDecimal money = getMoney(c.NonNT_msisdn);
+
+        silNonNT.join(4 * 60 * 1000);
+
+        Log.log.startAsbLog(c.NonNT_msisdn);
+        if (!c.TCID.isEmpty())
+            sms.sendSms(c.NonNT_msisdn, c.kn, c.kwNonNt + " " + c.TCID);
+        else
+            sms.sendSms(c.NonNT_msisdn, c.kn, c.kwNonNt);
+
+        checkService(c.NonNT_msisdn, c.NonNT_servis, "ACTIVE/STD/STD");
+
+
+        BigDecimal moneyAfter = getMoney(c.NonNT_msisdn);
+        BigDecimal fiyat = money.subtract(moneyAfter);
+        Assert.assertEquals(c.NonNT_Fiyat + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(c.NonNT_Fiyat).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+        List<String> smsler = log.getAsbLog(c.NonNT_msisdn);
+        Iterator<String> iterator = smsler.iterator();
+
+        String gun = addDay();
+        String kayitSms = c.NonNT_Kayit_Mesaji;
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+        System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+        String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
+        String gidenSms1 = iterator.next();
+        // Now create matcher object.
+        Matcher m = r.matcher(gidenSms1);
+
+        Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+        if (iterator.hasNext()) {
+            kayitSms = c.NonNT_Kayit_Mesaji2;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+            //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+            pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+            // Create a Pattern object
+            r = Pattern.compile(pattern);
+            String gidenSms2 = iterator.next();
+            // Now create matcher object.
+            m = r.matcher(gidenSms2);
+
+            Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+        }
+        System.out.println("\n test7 NonNt Kayit SMS bitti");
+
+    }
+
+    @Test
+    public void Test08_NonNT_KalanSMS() throws Exception {
+        assumeTrue(!c.kalanSMS.isEmpty());
+        log.startPromoLog(c.NonNT_msisdn);
+        sms.sendSms(c.NonNT_msisdn, c.kn, "KALAN " + c.kwNonNt);
+        List<String> smsler = log.getPromoLog(c.NonNT_msisdn);
+        Iterator<String> iterator = smsler.iterator();
+        String gidenSms1 = iterator.next();
+        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+
+        if (iterator.hasNext()) {
+            String gidenSms2 = iterator.next();
+            System.err.println("Giden 2. SMS: " + gidenSms2);
+            assumeTrue("Kalan sorgusunda Promo'dan birden fazla SMS gidiyor. Promo loguna bakiniz", false);
+
+        }
+        System.out.println(sms + "\n test8 NonNt paket kalan SMS bitti");
+
+    }
+
+    @Test
+    public void Test09_NonNT_Yetersiz_BakiyeKayitSMS() throws Exception {
+        BigDecimal money = getMoney(c.NonNtyetersizBakiyeMsisdn);
+
+        Log.log.startAsbLog(c.NonNtyetersizBakiyeMsisdn);
+        if (!c.TCID.isEmpty())
+            sms.sendSms(c.NonNtyetersizBakiyeMsisdn, c.kn, c.kw + " " + c.TCID);
+        else
+            sms.sendSms(c.NonNtyetersizBakiyeMsisdn, c.kn, c.kw);
+
+
+        BigDecimal moneyAfter = getMoney(c.NonNtyetersizBakiyeMsisdn);
+        BigDecimal fiyat = money.subtract(moneyAfter);
+        Assert.assertEquals(0 + " TL dusmesi gerekirken " + fiyat + " TL dustu. campaigns_rules_map_tab fiyati yanlis olabilir.", Double.parseDouble(new BigDecimal(0).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+        List<String> smsler = log.getAsbLog(c.NonNtyetersizBakiyeMsisdn);
+        Iterator<String> iterator = smsler.iterator();
+
+        String gun = addDay();
+        String kayitSms = c.NonNtyetersizBakiyeKayitSMS;
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+        kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+        System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+
+        String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
+        String gidenSms1 = iterator.next();
+        // Now create matcher object.
+        Matcher m = r.matcher(gidenSms1);
+
+        Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+        if (iterator.hasNext()) {
+            kayitSms = c.kayitSms2;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+            //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+            pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+            // Create a Pattern object
+            r = Pattern.compile(pattern);
+            String gidenSms2 = iterator.next();
+            // Now create matcher object.
+            m = r.matcher(gidenSms2);
+
+            Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+        }
+        System.out.println("\n test9 NonNt yetersiz bakiye Kayit SMSi bitti");
 
     }
 
@@ -168,6 +552,7 @@ public class AveaSMSKanali {
 
         return r;
     }
+
     public String postSOAPXML(String msisdn) {
         String resp = null;
         try {
@@ -208,9 +593,9 @@ public class AveaSMSKanali {
                 }
                 //System.out.print("Bakiyesi: ");
                 //m = Pattern.compile("<balanceName>BLP_Main</balanceName><measure>TRY</measure><unitType>CUR</unitType><currency>TRY</currency><balance>([^<]*)")
-                  //      .matcher(resp);
+                //      .matcher(resp);
                 //while (m.find()) {
-                  //  System.out.println(  m.group(1));
+                //  System.out.println(  m.group(1));
                 //}
             } else {
                 System.err.println("No Response");
@@ -221,6 +606,7 @@ public class AveaSMSKanali {
         }
         return resp;
     }
+
     public BigDecimal getMoney(String msisdn) {
         BigDecimal money = null;
         String resp = postSOAPXML(msisdn);
@@ -228,10 +614,16 @@ public class AveaSMSKanali {
                 .matcher(resp);
         while (m.find()) {
             money = new BigDecimal(m.group(1));
-            System.out.println("Bakiyesi: "+money);
+            System.out.println("Bakiyesi: " + money);
         }
+        m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
+        assumeTrue("BSG_10000:SUCCESS alinamadi", m.find());
+
+        if (money==null)
+            return new BigDecimal(0);
         return money;
     }
+
     public void checkService(String msisdn, String servis, String state) {
         if (servis.isEmpty()) {
             System.out.println("INFO: Servis bos birakildigindan kontrol edilmiyor.");
@@ -244,6 +636,7 @@ public class AveaSMSKanali {
         assumeTrue(servis + " " + state + " bulunamadi", m.find());
 
     }
+
     public void checkServiceNotExist(String msisdn, String servis) {
         if (servis.isEmpty()) {
             System.out.println("INFO: Servis bos birakildigindan kontrol edilmiyor.");

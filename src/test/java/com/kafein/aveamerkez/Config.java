@@ -12,7 +12,7 @@ import java.util.Properties;
 public class Config {
      String  kayitSms, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
      String NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
-     String ip,mrte1Pw,temizle,gecko,kanal,sleep,kayitSms2,NonNT_Kayit_Mesaji2,kwNonNt,kw,kn;
+     String ip,mrte1Pw,temizle,gecko,kanal,sleep,kayitSms2,NonNT_Kayit_Mesaji2,kwNonNt,kw,kn,iptal_edilecek_paketi_yoksa_SMSi,Paketi_zaten_var_SMSi;
     static Config config=new Config();//singleton pattern
 
     public Config(){
@@ -31,6 +31,8 @@ public class Config {
             // get the property value and print it out
             kayitSms = prop.getProperty("NT_Kayit_Mesaji");
             kayitSms2 = prop.getProperty("NT_Kayit_Mesaji2");
+            Paketi_zaten_var_SMSi = prop.getProperty("Paketi_zaten_var_SMSi");
+            iptal_edilecek_paketi_yoksa_SMSi = prop.getProperty("iptal_edilecek_paketi_yoksa_SMSi");
             kanal = prop.getProperty("SMS_kanali_promo_mu_ir_mi");
             sleep = prop.getProperty("Sleep_seconds_after_sending_SMS_before_checking_logs");
             msisdn = prop.getProperty("NTmsisdn");
