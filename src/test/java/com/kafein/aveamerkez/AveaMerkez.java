@@ -44,8 +44,86 @@ import static org.junit.Assume.assumeTrue;
 public class AveaMerkez {
     static String user, pw, url, pack, kayitSms, gecko, tur, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
     static String master, NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
+    static String ip,mrte1Pw,temizle,NonNT_Kayit_Mesaji2,kayitSms2;
     static WebDriver driver;
+    static Sil sil,silNonNT;
 
+ @BeforeClass
+    public static void loadProps() {
+
+        System.out.println("@BeforeClass: onceExecutedBeforeAll to read config");
+        Properties prop = new Properties();
+        InputStream input = null;
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
+
+        try {
+
+            input = new FileInputStream("Config.txt");
+
+            // load a properties file
+            prop.load(input);
+
+            // get the property value and print it out
+            user = prop.getProperty("user");
+            pw = prop.getProperty("sifre");
+            url = prop.getProperty("url");
+            pack = prop.getProperty("Paket_Gorunen_ismi");
+            kayitSms = prop.getProperty("NT_Kayit_Mesaji");
+            kayitSms2 = prop.getProperty("NT_Kayit_Mesaji2");
+            gecko = prop.getProperty("Firefox_Driver_Path");
+            tur = prop.getProperty("Paket_Turu");
+            msisdn = prop.getProperty("NTmsisdn");
+            day = prop.getProperty("paket_kac_gunluk");
+            iptalSMS = prop.getProperty("iptalSMS");
+            kalanSMS = prop.getProperty("kalanSMS");
+            yetersizBakiyemsisdn = prop.getProperty("NT_yetersizBakiye_Msisdn");
+            yetersizBakiyeKayitSMS = prop.getProperty("NT_yetersizBakiye_KayitSMS");
+            NonNtyetersizBakiyeKayitSMS = prop.getProperty("NONNT_yetersizBakiye_KayitSMS");
+            NonNtyetersizBakiyeMsisdn = prop.getProperty("NONNT_yetersizBakiye_Msisdn");
+            NonNT_msisdn = prop.getProperty("NonNT_msisdn");
+            NonNT_Kayit_Mesaji = prop.getProperty("NonNT_Kayit_Mesaji");
+            NonNT_Kayit_Mesaji2 = prop.getProperty("NonNT_Kayit_Mesaji2");
+            TCID = prop.getProperty("TCID");
+            NonNT_Fiyat = prop.getProperty("NonNT_Fiyat");
+            NT_Fiyat = prop.getProperty("NT_Fiyat");
+            NT_servis = prop.getProperty("yenilemeli_ise_NT_servis_ismi");
+            NonNT_servis = prop.getProperty("yenilemeli_ise_NonNT_servis_ismi");
+            bakiyesizAlim = prop.getProperty("Yenilemeli_ise_Bakiyesiz_Alim_var_mi");
+            ip = prop.getProperty("mrte1_IP");
+            mrte1Pw = prop.getProperty("mrte1_Sifre");
+            temizle = prop.getProperty("Aboneler_Once_Temizlensin_mi");
+            Enumeration<?> e = prop.propertyNames();
+            while (e.hasMoreElements()) {
+                String key = (String) e.nextElement();
+                String value = prop.getProperty(key);
+                if (!key.contentEquals("sifre"))
+                    System.out.println( key + " : " + value);
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+
+    }
+    
+    @BeforeClass
+    public static void eraser(){
+        sil=new Sil(msisdn);
+        silNonNT=new Sil(NonNT_msisdn);
+                sil.start();
+                silNonNT.start();
+    }
     @BeforeClass
     public static void drive() throws MalformedURLException {
         //Step 1- Driver Instantiation: Instantiate driver object as FirefoxDriver
@@ -71,71 +149,6 @@ public class AveaMerkez {
         driver.close();
         driver.quit();
     }
-
-    @BeforeClass
-    public static void loadProps() {
-
-        System.out.println("@BeforeClass: onceExecutedBeforeAll to read config");
-        Properties prop = new Properties();
-        InputStream input = null;
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
-
-        try {
-
-            input = new FileInputStream("Config.txt");
-
-            // load a properties file
-            prop.load(input);
-
-            // get the property value and print it out
-            user = prop.getProperty("user");
-            pw = prop.getProperty("sifre");
-            url = prop.getProperty("url");
-            pack = prop.getProperty("Paket_Gorunen_ismi");
-            kayitSms = prop.getProperty("NT_Kayit_Mesaji");
-            gecko = prop.getProperty("Firefox_Driver_Path");
-            tur = prop.getProperty("Paket_Turu");
-            msisdn = prop.getProperty("NTmsisdn");
-            day = prop.getProperty("paket_kac_gunluk");
-            iptalSMS = prop.getProperty("iptalSMS");
-            kalanSMS = prop.getProperty("kalanSMS");
-            yetersizBakiyemsisdn = prop.getProperty("NT_yetersizBakiye_Msisdn");
-            yetersizBakiyeKayitSMS = prop.getProperty("NT_yetersizBakiye_KayitSMS");
-            NonNtyetersizBakiyeKayitSMS = prop.getProperty("NONNT_yetersizBakiye_KayitSMS");
-            NonNtyetersizBakiyeMsisdn = prop.getProperty("NONNT_yetersizBakiye_Msisdn");
-            NonNT_msisdn = prop.getProperty("NonNT_msisdn");
-            NonNT_Kayit_Mesaji = prop.getProperty("NonNT_Kayit_Mesaji");
-            TCID = prop.getProperty("TCID");
-            NonNT_Fiyat = prop.getProperty("NonNT_Fiyat");
-            NT_Fiyat = prop.getProperty("NT_Fiyat");
-            NT_servis = prop.getProperty("yenilemeli_ise_NT_servis_ismi");
-            NonNT_servis = prop.getProperty("yenilemeli_ise_NonNT_servis_ismi");
-            bakiyesizAlim = prop.getProperty("Yenilemeli_ise_Bakiyesiz_Alim_var_mi");
-            Enumeration<?> e = prop.propertyNames();
-            while (e.hasMoreElements()) {
-                String key = (String) e.nextElement();
-                String value = prop.getProperty(key);
-                if (!key.contentEquals("sifre"))
-                    System.out.println("Key : " + key + "; Value : " + value);
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-
-    }
-
 
     //We should add @Test annotation that JUnit will run below method
     @Test
@@ -168,12 +181,20 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
+        //waitForJStoLoad();
+        WebDriverWait wait = new WebDriverWait(driver, 76,200);
+       // wait.until(new page_loaded("#searchmsisdn", 1));
+        wait.until(ExpectedConditions.stalenessOf(guncelle));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
+        sil.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
 
         WebElement paketListesi = null;
+
         txtBox.sendKeys(msisdn);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
+
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);
@@ -203,7 +224,7 @@ public class AveaMerkez {
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
 
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+        //WebDriverWait wait = new WebDriverWait(driver, 66);
         wait.until(new ElementPopulatedByFilter("#populated", 366));
 
         paketListesi = fluentWait(By.cssSelector("#populated"));
@@ -254,6 +275,7 @@ public class AveaMerkez {
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         checkService(msisdn,NT_servis,"ACTIVE/STD/STD");
         String gun = addDay();
+        kayitSms=kayitSms+kayitSms2;
         kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
@@ -303,10 +325,11 @@ public class AveaMerkez {
         String newAdwinID = itererator.next();
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText());
+        String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
         driver.close();
         driver.switchTo().window(master);  // switch back to parent window
-        System.out.println("\n test2 paket kalan bitti");
+        System.out.println(sms+"\n test2 paket kalan bitti");
 
     }
 
@@ -339,6 +362,7 @@ public class AveaMerkez {
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         String gun = addDay();
         iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
+        iptalSMS = iptalSMS.replace(" kadar ", " kadar \\s?");
         iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
 
         System.out.println("INFO: Beklenen iptal SMSi : " + iptalSMS);
@@ -460,6 +484,7 @@ public class AveaMerkez {
         // String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
         //  Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
+        if (bakiyesizAlim.equalsIgnoreCase("evet"))
         checkService(yetersizBakiyemsisdn,NT_servis,"PASSIVE/STD/FOLLOW");
         String gun = addDay();
         yetersizBakiyeKayitSMS = yetersizBakiyeKayitSMS.replaceAll("<BONUS_END_DATE>", gun);
@@ -523,12 +548,16 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
+        WebDriverWait wait = new WebDriverWait(driver, 66,200);
+        wait.until(new page_loaded("#searchmsisdn", 1));
+        silNonNT.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         //try {
 
         WebElement paketListesi = null;
         txtBox.sendKeys(NonNT_msisdn);
         Thread.sleep(2000);
+
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
         Thread.sleep(2000);
@@ -559,7 +588,7 @@ public class AveaMerkez {
 
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+         wait = new WebDriverWait(driver, 66);
         wait.until(new ElementPopulatedByFilter("#populated", 366));
         paketListesi = fluentWait(By.cssSelector("#populated"));
         Select ses = new Select(paketListesi);
@@ -607,6 +636,7 @@ public class AveaMerkez {
         checkService(NonNT_msisdn,NonNT_servis,"ACTIVE/STD/STD");
 
         String gun = addDay();
+        NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji+NonNT_Kayit_Mesaji2;
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replaceAll("<BONUS_END_DATE>", gun);
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         NonNT_Kayit_Mesaji = NonNT_Kayit_Mesaji.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
@@ -655,9 +685,10 @@ public class AveaMerkez {
         String newAdwinID = itererator.next();
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText());
+        String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
         driver.switchTo().window(master);  // switch back to parent window
-        System.out.println("\n test6 NonNt paket kalan bitti");
+        System.out.println(sms+"\n test6 NonNt paket kalan bitti");
 
     }
 
@@ -678,7 +709,6 @@ public class AveaMerkez {
         Thread.sleep(3000);
         fluentWait(By.className("clsInputLabel"));
 
-        //
         checkServiceNotExist(NonNT_msisdn,NonNT_servis);
         List<WebElement> messages = driver.findElements(By.className("clsInputLabel"));
         for (WebElement ms : messages) {
@@ -716,8 +746,8 @@ public class AveaMerkez {
             driver.navigate().to(url);
             WebElement txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         } catch (Exception e) {
-            System.err.println("pw girme hatasi " + e.getLocalizedMessage() + e.getMessage());
-            e.printStackTrace();
+            System.err.println("pw girme hatasi.. geciliyor "  );
+
             // driver.close();
             //driver.quit();
         }
@@ -760,7 +790,7 @@ public class AveaMerkez {
             types.selectByVisibleText(tur);
         }
         Thread.sleep(2000);
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+        WebDriverWait wait = new WebDriverWait(driver, 86);
 
 
         // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
@@ -825,7 +855,7 @@ public class AveaMerkez {
         // Now create matcher object.
         Matcher m = r.matcher(message2);
         System.out.println("Beklenen regex Patterni:" + pattern);
-
+        if (bakiyesizAlim.equalsIgnoreCase("evet"))
         checkService(NonNtyetersizBakiyeMsisdn,NonNT_servis,"PASSIVE/STD/FOLLOW");
 
         Assert.assertTrue("NonNT_yetersizBakiyeKayit Mesaji yanlis..:" + message2, m.matches());
@@ -904,7 +934,7 @@ public class AveaMerkez {
 
     //@Test
     public void regTest() {
-        BigDecimal fiyat=new BigDecimal("30.000000") ;
+      /*  BigDecimal fiyat=new BigDecimal("30.000000") ;
         Assert.assertEquals(NonNT_Fiyat+" TL dusmesi gerekirken "+fiyat+" TL dustu. Servis veya fiyati yanlis..",Double.parseDouble(new BigDecimal(NonNT_Fiyat).toString()) ,Double.parseDouble(fiyat.toString()),0);
 
         System.out.println(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()));
@@ -925,12 +955,13 @@ public class AveaMerkez {
         System.out.println("gun: " + gun);
 
 
-        String kayitSMS = "Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+        */String kayitSMS = "Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         String pattern = "  Islem için gerekli bütün kontroller basari ile yapilmistir. " + "\\s*" + kayitSMS + "\\.?\\.?\\.?\\s*";
         String testStr = "  Islem için gerekli bütün kontroller basari ile yapilmistir. Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         // Create a Pattern object
-        Pattern r = Pattern.compile(pattern);
-
+        //Pattern r = Pattern.compile(pattern);
+        Pattern r = Pattern.compile("[0-9]{2}+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+testStr="500 dk";
         // Now create matcher object.
         Matcher m = r.matcher(testStr);
         if (m.matches()) {
@@ -1007,6 +1038,39 @@ public class AveaMerkez {
         @Override
         public String toString() {
             return "Paket listesi Yuklemesinde Sorun var?";
+        }
+    }
+
+    private class page_loaded implements ExpectedCondition<Boolean> {
+        private int size;
+        // private Select findBy;
+        private String css;
+
+        //Constructor (Set the given values)
+        public page_loaded(final String css, final int size) {
+            this.css = css;
+            this.size = size;
+        }
+
+        //Override the apply method with your own functionality
+        @Override
+        public Boolean apply(WebDriver webDriver) {
+
+            try {
+                //Check that the element size filtered
+                driver.findElement(By.cssSelector(css));
+                    return false;
+
+            } catch (Exception e) {
+                return true;
+            }
+
+        }
+
+        //This is for log message. I override it because when test fails, it will give us a meaningful message.
+        @Override
+        public String toString() {
+            return "Page Load beklerken hata";
         }
     }
 
