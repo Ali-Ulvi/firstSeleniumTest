@@ -150,9 +150,6 @@ public class AveaMerkez {
         driver.quit();
     }
 
-   
-
-
     //We should add @Test annotation that JUnit will run below method
     @Test
     //Start to write our test method. It should ends with "Test"
@@ -185,7 +182,7 @@ public class AveaMerkez {
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
         //waitForJStoLoad();
-        WebDriverWait wait = new WebDriverWait(driver, 66,200);
+        WebDriverWait wait = new WebDriverWait(driver, 76,200);
        // wait.until(new page_loaded("#searchmsisdn", 1));
         wait.until(ExpectedConditions.stalenessOf(guncelle));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
@@ -365,6 +362,7 @@ public class AveaMerkez {
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         String gun = addDay();
         iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
+        iptalSMS = iptalSMS.replace(" kadar ", " kadar \\s?");
         iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
 
         System.out.println("INFO: Beklenen iptal SMSi : " + iptalSMS);
@@ -792,7 +790,7 @@ public class AveaMerkez {
             types.selectByVisibleText(tur);
         }
         Thread.sleep(2000);
-        WebDriverWait wait = new WebDriverWait(driver, 66);
+        WebDriverWait wait = new WebDriverWait(driver, 86);
 
 
         // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
@@ -936,7 +934,7 @@ public class AveaMerkez {
 
     //@Test
     public void regTest() {
-        BigDecimal fiyat=new BigDecimal("30.000000") ;
+      /*  BigDecimal fiyat=new BigDecimal("30.000000") ;
         Assert.assertEquals(NonNT_Fiyat+" TL dusmesi gerekirken "+fiyat+" TL dustu. Servis veya fiyati yanlis..",Double.parseDouble(new BigDecimal(NonNT_Fiyat).toString()) ,Double.parseDouble(fiyat.toString()),0);
 
         System.out.println(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()));
@@ -957,12 +955,13 @@ public class AveaMerkez {
         System.out.println("gun: " + gun);
 
 
-        String kayitSMS = "Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+        */String kayitSMS = "Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         String pattern = "  Islem için gerekli bütün kontroller basari ile yapilmistir. " + "\\s*" + kayitSMS + "\\.?\\.?\\.?\\s*";
         String testStr = "  Islem için gerekli bütün kontroller basari ile yapilmistir. Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         // Create a Pattern object
-        Pattern r = Pattern.compile(pattern);
-
+        //Pattern r = Pattern.compile(pattern);
+        Pattern r = Pattern.compile("[0-9]{2}+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+testStr="500 dk";
         // Now create matcher object.
         Matcher m = r.matcher(testStr);
         if (m.matches()) {
