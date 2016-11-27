@@ -27,7 +27,9 @@ public class SendSms {
 
     public void sendSms(String no, String KN, String sms) throws Exception {
         if (driver == null) {
-            System.setProperty("webdriver.chrome.driver", "C:\\firstSeleniumTest\\chromedriver.exe");
+
+           // System.setProperty("webdriver.chrome.driver", "C:\\firstSeleniumTest\\chromedriver.exe");
+            System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+"\\chromedriver.exe");
             driver = new ChromeDriver();
 //            driver = new RemoteWebDriver(new URL("http://127.0.0.1:9515"), DesiredCapabilities.chrome());
             try {
