@@ -57,10 +57,11 @@ public class Sil extends Thread {
 
                 channel.disconnect();
                 session.disconnect();
+                System.out.println("Complete: Cleaning Subscriber's Packs and bonus: "  + no);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Complete: Cleaning Subscriber's Packs and bonus: "  + no);
         }
     }
 

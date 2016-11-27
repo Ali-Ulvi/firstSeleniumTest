@@ -51,10 +51,11 @@ public class Sil2 extends Thread {
 
                 channel.disconnect();
                 session.disconnect();
+                System.out.println("Completed Cleaning : "  + no);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Completed Cleaning : "  + no);
         }
     }
 

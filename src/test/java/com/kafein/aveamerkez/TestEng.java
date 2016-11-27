@@ -1,5 +1,9 @@
 package com.kafein.aveamerkez;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,7 +23,7 @@ public class TestEng {
         while (m.find()) {
             System.out.println("Found value: " + m.group(2));
             String amnt = m.group(2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
             dk.put(amnt + m.group(3), Long.parseLong(amnt) * 2);
         }
         r = Pattern.compile("(paket|kapsam).* ([0-9]+)( +(sms|kisa mesaj))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
@@ -29,7 +33,7 @@ public class TestEng {
             String amnt = m.group(2);
 
             sms.put(amnt + m.group(3), Long.parseLong(amnt) * 2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
 
         r = Pattern.compile("(paket|kapsam).* ([0-9]+)( +(mb|mega ?byte))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
@@ -39,7 +43,7 @@ public class TestEng {
             String amnt = m.group(2);
 
             mb.put(amnt + m.group(3), Long.parseLong(amnt) * 2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
 
         r = Pattern.compile("(paket|kapsam).* ([0-9]+)( +mms|(multi ?med(i|y)a ?mesaj))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
@@ -49,11 +53,11 @@ public class TestEng {
             String amnt = m.group(2);
 
             mms.put(amnt + m.group(3), Long.parseLong(amnt) * 2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
 
         for (Map.Entry<String, Long> entry : mb.entrySet()) {
-            System.out.println(testStr+entry.getKey() + "/" + entry.getValue());
+            System.out.println(testStr + entry.getKey() + "/" + entry.getValue());
 
 
         }
@@ -69,4 +73,27 @@ public class TestEng {
             System.out.println(entry.getKey() + "/" + entry.getValue());
         }
     }
+
+
+    @Test
+    public void replace() {
+
+        try {
+            FileReader reader = new FileReader("Config.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+            FileWriter writer = new FileWriter("AUTO-Generated-File_Config_ingilizce_karakterli.txt", false);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            while ((line = bufferedReader.readLine()) != null) {
+                bufferedWriter.write(StringUtils.replaceChars(line,"ı’üşöçİ;ğÜŞÖÇĞ","i'usocI,gUSOCG"));
+                bufferedWriter.newLine();
+            }
+            reader.close();
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+

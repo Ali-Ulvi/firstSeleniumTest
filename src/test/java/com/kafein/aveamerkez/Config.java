@@ -1,8 +1,8 @@
 package com.kafein.aveamerkez;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.*;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -13,7 +13,7 @@ public class Config {
      String  kayitSms, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
      String NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
      String kalanSMS_paket_bitmis_ise,TempMsisdn,ip,mrte1Pw,temizle,gecko,kanal,sleep,kayitSms2,NonNT_Kayit_Mesaji2,kwNonNt,kw,kn,iptal_edilecek_paketi_yoksa_SMSi,Paketi_zaten_var_SMSi,kalanSMS_paket_yoksa;
-    String Paket_Kayit_Bonusu,Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi,Tarifesi_uygun_bir_msisdn,First_Call_SMSi,First_Calldaki_Abone,Hotline_No,Hotline_SMS,Faturali_SMSi,Faturali_No,YasakTarife1,YasakTarife2,YasakTarife3,YasakTarife4,YasakTarife1SMSi,YasakTarife2SMSi,YasakTarife3SMSi,YasakTarife4SMSi;
+    String SMS_Gonderimi_icin_ikinci_yolu_kullan,Paket_Kayit_Bonusu,Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi,Tarifesi_uygun_bir_msisdn,First_Call_SMSi,First_Calldaki_Abone,Hotline_No,Hotline_SMS,Faturali_SMSi,Faturali_No,YasakTarife1,YasakTarife2,YasakTarife3,YasakTarife4,YasakTarife1SMSi,YasakTarife2SMSi,YasakTarife3SMSi,YasakTarife4SMSi;
     static Config config=new Config();//singleton pattern
 
     public Config(){
@@ -24,7 +24,28 @@ public class Config {
 
         try {
 
-            input = new FileInputStream("Config.txt");
+            try {
+                FileReader reader = new FileReader("Config.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+                FileWriter writer = new FileWriter("AUTO-Generated-File_Config_ingilizce_karakterli.txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(StringUtils.replaceChars(line,"ı’üşöçİ;ğÜŞÖÇĞ","i'usocI,gUSOCG"));
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+                input = new FileInputStream("AUTO-Generated-File_Config_ingilizce_karakterli.txt");
+
+                System.out.println( "File_Config_ingilizce_karakterliye cevrildi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                input = new FileInputStream("Config.txt");
+                System.out.println( "File_Config_ingilizceye cevirme sirasinda hata");
+
+            }
 
             // load a properties file
             prop.load(input);
@@ -35,6 +56,7 @@ public class Config {
             Paketi_zaten_var_SMSi = prop.getProperty("Paketi_zaten_var_SMSi");
             iptal_edilecek_paketi_yoksa_SMSi = prop.getProperty("iptal_edilecek_paketi_yoksa_SMSi");
             kanal = prop.getProperty("SMS_kanali_promo_mu_ir_mi");
+            SMS_Gonderimi_icin_ikinci_yolu_kullan = prop.getProperty("SMS_Gonderimi_icin_ikinci_yolu_kullan");
             sleep = prop.getProperty("Sleep_seconds_after_sending_SMS_before_checking_logs");
             Paket_Kayit_Bonusu = prop.getProperty("Paket_Kayit_Bonusu");
             kalanSMS_paket_yoksa = prop.getProperty("kalanSMS_paket_yoksa");

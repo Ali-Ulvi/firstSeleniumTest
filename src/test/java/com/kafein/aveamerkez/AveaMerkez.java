@@ -1,6 +1,7 @@
 package com.kafein.aveamerkez;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,6 +21,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.*;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
@@ -28,10 +30,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
@@ -58,8 +56,28 @@ public class AveaMerkez {
                 System.getProperty("user.dir"));
 
         try {
+            try {
+                FileReader reader = new FileReader("Config.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
 
-            input = new FileInputStream("Config.txt");
+                String line;
+                FileWriter writer = new FileWriter("AUTO-Generated-File_Config_ingilizce_karakterli.txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(StringUtils.replaceChars(line,"ı’üşöçİ;ğÜŞÖÇĞ","i'usocI,gUSOCG"));
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+                input = new FileInputStream("AUTO-Generated-File_Config_ingilizce_karakterli.txt");
+
+                System.out.println( "File_Config_ingilizce_karakterliye cevrildi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                input = new FileInputStream("Config.txt");
+                System.out.println( "File_Config_ingilizceye cevirme sirasinda hata");
+
+            }
 
             // load a properties file
             prop.load(input);
@@ -170,10 +188,7 @@ public class AveaMerkez {
             driver.findElement(By.name("password")).sendKeys(pw);
             driver.findElement(By.name("sendButton")).click();
         } catch (Exception e) {
-            System.err.println("pw girme hatasi " + e.getLocalizedMessage() + e.getMessage());
-            e.printStackTrace();
-            // driver.close();
-            //driver.quit();
+            System.err.println("pw girme hatasi ");
         }
         WebElement logout = fluentWait(By.id("logout"));
         driver.navigate().to(url);
@@ -182,7 +197,7 @@ public class AveaMerkez {
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
         //waitForJStoLoad();
-        WebDriverWait wait = new WebDriverWait(driver, 76,200);
+        WebDriverWait wait = new WebDriverWait(driver, 89,200);
        // wait.until(new page_loaded("#searchmsisdn", 1));
         wait.until(ExpectedConditions.stalenessOf(guncelle));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
@@ -225,7 +240,9 @@ public class AveaMerkez {
         System.out.println("paket list size before" + ses1.getOptions().size());
 
         //WebDriverWait wait = new WebDriverWait(driver, 66);
-        wait.until(new ElementPopulatedByFilter("#populated", 366));
+
+        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
+        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
 
         paketListesi = fluentWait(By.cssSelector("#populated"));
 
@@ -388,8 +405,7 @@ public class AveaMerkez {
             driver.navigate().to(url);
             WebElement txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
         } catch (Exception e) {
-            System.err.println("pw girme hatasi " + e.getLocalizedMessage() + e.getMessage());
-            e.printStackTrace();
+            System.err.println("pw girme hatasi ");
             // driver.close();
             //driver.quit();
         }
@@ -442,7 +458,8 @@ public class AveaMerkez {
 
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
-        wait.until(new ElementPopulatedByFilter("#populated", 366));
+        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
+        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
 
         paketListesi = fluentWait(By.cssSelector("#populated"));
 
@@ -589,7 +606,8 @@ public class AveaMerkez {
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
          wait = new WebDriverWait(driver, 66);
-        wait.until(new ElementPopulatedByFilter("#populated", 366));
+        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
+        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
         paketListesi = fluentWait(By.cssSelector("#populated"));
         Select ses = new Select(paketListesi);
         Thread.sleep(1500);
@@ -775,7 +793,7 @@ public class AveaMerkez {
         Thread.sleep(2000);
         //loading screen closed (waiting)
         fluentWait(By.cssSelector("#loader[style='display: none;']"));
-
+        Thread.sleep(2000);
         Select types = new Select(fluentWait(By.cssSelector("select#types")));
         if (tur.compareToIgnoreCase("ses") == 0) {
 
@@ -791,16 +809,17 @@ public class AveaMerkez {
         }
         Thread.sleep(2000);
         WebDriverWait wait = new WebDriverWait(driver, 86);
-
-
-        // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
-        //Thread.sleep(2000);
-
-
         Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
         System.out.println("paket list size before" + ses1.getOptions().size());
-        wait.until(new ElementPopulatedByFilter("#populated", 366));
-
+        WebDriverWait wait2 = new WebDriverWait(driver, 40,2000);
+        try {
+            wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size() - 1));
+        }
+        catch (Exception e){
+            //aveamerkez or connection errors may have happened. trying again
+              wait2 = new WebDriverWait(driver, 80,4000);
+            wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size() - 1));
+        }
         paketListesi = fluentWait(By.cssSelector("#populated"));
 
         Select ses = new Select(paketListesi);
