@@ -1,8 +1,8 @@
 package com.kafein.aveamerkez;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.*;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -24,7 +24,28 @@ public class Config {
 
         try {
 
-            input = new FileInputStream("Config.txt");
+            try {
+                FileReader reader = new FileReader("Config.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+                FileWriter writer = new FileWriter("AUTO-Generated-File_Config_ingilizce_karakterli.txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(StringUtils.replaceChars(line,"ı’üşöçİ;ğÜŞÖÇĞ","i'usocI,gUSOCG"));
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+                input = new FileInputStream("AUTO-Generated-File_Config_ingilizce_karakterli.txt");
+
+                System.out.println( "File_Config_ingilizce_karakterliye cevrildi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                input = new FileInputStream("Config.txt");
+                System.out.println( "File_Config_ingilizceye cevirme sirasinda hata");
+
+            }
 
             // load a properties file
             prop.load(input);

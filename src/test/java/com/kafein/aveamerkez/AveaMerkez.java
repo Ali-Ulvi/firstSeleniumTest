@@ -1,6 +1,7 @@
 package com.kafein.aveamerkez;
 
 import com.google.common.base.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,6 +21,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.*;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
@@ -28,10 +30,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
@@ -58,8 +56,28 @@ public class AveaMerkez {
                 System.getProperty("user.dir"));
 
         try {
+            try {
+                FileReader reader = new FileReader("Config.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
 
-            input = new FileInputStream("Config.txt");
+                String line;
+                FileWriter writer = new FileWriter("AUTO-Generated-File_Config_ingilizce_karakterli.txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(StringUtils.replaceChars(line,"ı’üşöçİ;ğÜŞÖÇĞ","i'usocI,gUSOCG"));
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+                input = new FileInputStream("AUTO-Generated-File_Config_ingilizce_karakterli.txt");
+
+                System.out.println( "File_Config_ingilizce_karakterliye cevrildi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                input = new FileInputStream("Config.txt");
+                System.out.println( "File_Config_ingilizceye cevirme sirasinda hata");
+
+            }
 
             // load a properties file
             prop.load(input);

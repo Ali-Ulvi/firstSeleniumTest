@@ -1,6 +1,6 @@
 package com.kafein.aveamerkez;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -8,7 +8,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.File;
@@ -46,9 +49,6 @@ public class AveaSMSKanali {
 
     @BeforeClass
     public static void drive() throws MalformedURLException {
-        //Step 1- Driver Instantiation: Instantiate driver object as FirefoxDriver
-
-
         sil = new Sil2(c.msisdn);
         silNonNT = new Sil2(c.NonNT_msisdn);
         sil.start();
@@ -1143,6 +1143,7 @@ public class AveaSMSKanali {
             });
 
             for (File file : files) {
+                if (file.getName().contains("Config"))continue;
                 ZipEntry ze = new ZipEntry(file.getName());
                 zos.putNextEntry(ze);
                 FileInputStream in = new FileInputStream("C:\\Logs\\" + file.getName());
@@ -1158,6 +1159,14 @@ public class AveaSMSKanali {
             }
             //remember close it
             zos.close();
+            File source = new File("Config.txt");
+            File dest = new File("C:\\Logs\\Config_"+c.kw+".txt");
+            try {
+                FileUtils.copyFile(source, dest);
+                System.out.println("Config.txt Buraya Kopyalandi: "+"C:\\Logs\\Config_"+c.kw+".txt");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             System.out.println("SMS Kanali loglarini iceren C:\\Logs\\" + c.kw + "_Logs.zip olusturuldu");
         } catch (Exception ex) {
             System.err.println("Loglar Arsivlenirken hata. UAC'yi kapatiniz. Bkz. Google.");
