@@ -1,5 +1,5 @@
 Paket_Gorunen_ismi=DOLU 3GB Paketi
-NTmsisdn=5050000904
+NTmsisdn=5050000913
 NT_Kayit_Mesaji=DOLU 3GB Paketiniz 27 TL'ye hattiniza tanimlanmistir. 30 gun boyunca yurt icinde gecerli her yone 750 dakika, her yone 1000 SMS ve 3 GB cepten internetinizi DD/MM/YYYY saat HH:MI'a kadar kullanabilirsiniz.
 NT_Kayit_Mesaji2=
 NT_Fiyat=27
@@ -71,7 +71,7 @@ First_Calldaki_Abone=5050000906
 First_Call_SMSi=Degerli musterimiz, paketi satin alabilmek icin oncelikle ucretli bir gorusme yapmali ya da SMS gondermelisiniz.
 
 #NT Flag ile 'Daha önce yeni müşteri fiyatından (NT/NA’lı fiyat) bu paketi almış mı?' kontrolü varsa evet giriniz
-Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=hayir
+Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=evet
 Tarifesi_uygun_bir_msisdn=5050000911
 
 user=071111
@@ -84,3 +84,6 @@ SMS_kanali_promo_mu_ir_mi=promo
 Sleep_seconds_after_sending_SMS_before_checking_logs=15
 #Firefox Driver internetten indirilebilir: https://github.com/mozilla/geckodriver/releases   örnegin: geckodriver-v0.11.1-win32.zip. Firefoxunuz da cok eski olmamali
 Firefox_Driver_Path=C:\\geckodriver.exe
+
+#bagli sistem calismadiginda alternatif yol kullanilabilir:
+SMS_Gonderimi_icin_ikinci_yolu_kullan=hayir

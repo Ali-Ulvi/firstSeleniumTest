@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.Wait;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 
@@ -26,10 +27,41 @@ public class SendSms {
     static WebElement kn;
 
     public void sendSms(String no, String KN, String sms) throws Exception {
+
+        if (c.SMS_Gonderimi_icin_ikinci_yolu_kullan.equalsIgnoreCase("evet")) {
+
+            if (c.kanal.equalsIgnoreCase("promo")) {
+
+                ProcessBuilder pb = new ProcessBuilder(
+                        System.getProperty("user.dir") + "/sendSms/send",
+                        "promotion.sms.incoming2",
+                        "90" + no + "|" + KN + "|" + sms);
+                pb.directory(new File(System.getProperty("user.dir") + "/sendSms/"));
+                pb.redirectErrorStream(true);
+                Process pp = pb.start();
+                pp.waitFor();
+                System.err.println("sent to Promo");
+            } else {
+
+                ProcessBuilder pb = new ProcessBuilder(
+                        System.getProperty("user.dir") + "/sendSms/send",
+                        "intelligentRouter.incoming2",
+                        "90" + no + "][" + KN + "][" + sms);
+                pb.directory(new File(System.getProperty("user.dir") + "/sendSms/"));
+                pb.redirectErrorStream(true);
+                Process pp = pb.start();
+                pp.waitFor();
+                System.err.println("sent to IR");
+
+            }
+            Thread.sleep(Long.parseLong(c.sleep) * 1000);
+
+            return;
+        }
         if (driver == null) {
 
-           // System.setProperty("webdriver.chrome.driver", "C:\\firstSeleniumTest\\chromedriver.exe");
-            System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+"\\chromedriver.exe");
+            // System.setProperty("webdriver.chrome.driver", "C:\\firstSeleniumTest\\chromedriver.exe");
+            System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "\\chromedriver.exe");
             driver = new ChromeDriver();
 //            driver = new RemoteWebDriver(new URL("http://127.0.0.1:9515"), DesiredCapabilities.chrome());
             try {
@@ -39,11 +71,19 @@ public class SendSms {
                 driver.navigate().to("http://10.248.68.40:7015/KafeinTestMaster/fsk/acme/SmsGonder.xhtml");
                 driver.findElement(By.cssSelector("#j_idt20\\3a j_idt22\\3a 1"));
             } catch (Exception e) {
-                Thread t=new Thread(new LoginWindow(0));t.start();
+                Thread t = new Thread(new LoginWindow(1));
+                t.start();
                 t.join();
-               // System.out.println("Sifre pop-up'i kapatildi");
-                driver.navigate().to("http://10.248.68.40:7015/KafeinTestMaster/fsk/acme/SmsGonder.xhtml");
-                driver.get("http://10.248.68.40:7015/KafeinTestmaster/fsk/acme/SmsGonder.xhtml ");
+                // System.out.println("Sifre pop-up'i kapatildi");
+                try {
+                    driver.navigate().to("http://10.248.68.40:7015/KafeinTestMaster/fsk/acme/SmsGonder.xhtml");
+                    driver.findElement(By.cssSelector("#j_idt20\\3a j_idt22\\3a 1"));
+
+                } catch (Exception ee) {
+                    t = new Thread(new LoginWindow(1));
+                    t.start();
+                    t.join();
+                }
             }
             if (c.kanal.equalsIgnoreCase("promo")) //promo or ir
                 fluentWait(By.cssSelector("#j_idt20\\3a j_idt22\\3a 1")).click();
@@ -65,6 +105,22 @@ public class SendSms {
         tx.sendKeys(sms);
 
         bt.click();
+        if (!tx.getText().isEmpty()) {
+            System.err.println("sifre soruyor galiba");
+            Thread t = new Thread(new LoginWindow(1));
+            t.start();
+            t.join();
+            msisdn.clear();
+            kn.clear();
+            tx.clear();
+
+            msisdn.sendKeys(no);
+            kn.sendKeys(KN);
+            tx.sendKeys(sms);
+
+            bt.click();
+
+        }
         driver.manage().window().setSize(new Dimension(66, 549));
         driver.manage().window().setPosition(new Point(-29, -33));
         Thread.sleep(Long.parseLong(c.sleep) * 1000);
@@ -124,9 +180,6 @@ public class SendSms {
             Thread.sleep(sec * 1000);
         }
     }
-
-
-
 
 
 }

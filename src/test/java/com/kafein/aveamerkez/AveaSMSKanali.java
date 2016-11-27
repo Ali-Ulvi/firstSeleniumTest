@@ -1,23 +1,19 @@
 package com.kafein.aveamerkez;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
@@ -28,6 +24,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assume.assumeFalse;
@@ -633,6 +631,7 @@ public class AveaSMSKanali {
     @Test
     public void Test00_Paketi_Yoksa_KalanSMSi() throws Exception {
         assumeTrue(!c.kalanSMS_paket_yoksa.isEmpty());
+        sil.join();
         log.startPromoLog(c.msisdn);
         sms.sendSms(c.msisdn, c.kn, "KALAN " + c.kw);
         List<String> smsler = log.getPromoLog(c.msisdn, "Test00_Paketi_Yoksa_KalanSMSi");
@@ -695,7 +694,8 @@ public class AveaSMSKanali {
         List<String> smslerAsb = log.getAsbLog(c.TempMsisdn, "Test10_YasakTarifeSMSleri Tarife " + c.YasakTarife1);
         Iterator<String> iterator = smsler.iterator();
         Iterator<String> asbIterator = smslerAsb.iterator();
-        assumeFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
+        assertFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
+        assertFalse("SMS bulunamadı", !iterator.hasNext() && !asbIterator.hasNext());
         if (iterator.hasNext()) {
 
             String kayitSms = c.YasakTarife1SMSi;
@@ -749,7 +749,7 @@ public class AveaSMSKanali {
         smslerAsb = log.getAsbLog(c.TempMsisdn, "Test10_YasakTarifeSMSleri Tarife " + c.YasakTarife2);
         iterator = smsler.iterator();
         asbIterator = smslerAsb.iterator();
-        assumeFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
+        assertFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
         if (iterator.hasNext()) {
 
             String kayitSms = c.YasakTarife2SMSi;
@@ -811,6 +811,7 @@ public class AveaSMSKanali {
         List<String> smslerAsb = log.getAsbLog(c.TempMsisdn, "Test11_YasakTarifeSMSleri2 Tarife " + c.YasakTarife3);
         Iterator<String> iterator = smsler.iterator();
         Iterator<String> asbIterator = smslerAsb.iterator();
+        assertFalse("SMS bulunamadi", !iterator.hasNext() && !asbIterator.hasNext());
         assumeFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
         if (iterator.hasNext()) {
 
@@ -944,7 +945,7 @@ public class AveaSMSKanali {
 
         }
         smsler = log.getAsbLog(c.Hotline_No, "Test13_HotlineAboneSMS");
-        assumeFalse("Hotline Testinde Hem Promodan Hem ASB'den SMS gonderildi", smsler.iterator().hasNext());
+        assertFalse("Hotline Testinde Hem Promodan Hem ASB'den SMS gonderildi", smsler.iterator().hasNext());
         System.out.println("\n Test13_HotlineAboneSMS bitti");
 
     }
@@ -992,19 +993,18 @@ public class AveaSMSKanali {
             if (iterator.hasNext()) {
                 String gidenSms2 = iterator.next();
                 System.err.println("Giden 2. SMS: " + gidenSms2);
-                assumeTrue("Test14_FirstCalldakiAboneSMS: ASB'den birden fazla SMS gidiyor. ASB loguna bakiniz. C:\\Logs klasorunde", false);
+                assertTrue("Test14_FirstCalldakiAboneSMS: ASB'den birden fazla SMS gidiyor. ASB loguna bakiniz. C:\\Logs klasorunde", false);
 
             }
         }
-        assumeFalse("Test14_FirstCalldakiAboneSMS Testinde Hem Promodan Hem ASB'den SMS gonderildi", smsler.size() > 0 && asbSmsler.size() > 0);
-        assumeFalse("Test14_FirstCalldakiAboneSMS Testinde SMS gonderilmedi", smsler.size() == 0 && asbSmsler.size() == 0);
+        assertFalse("Test14_FirstCalldakiAboneSMS Testinde Hem Promodan Hem ASB'den SMS gonderildi", smsler.size() > 0 && asbSmsler.size() > 0);
+        assertFalse("Test14_FirstCalldakiAboneSMS Testinde SMS gonderilmedi", smsler.size() == 0 && asbSmsler.size() == 0);
         System.out.println("\n Test14_FirstCalldakiAboneSMS bitti");
 
     }
 
-
     @Test
-    public void Test15_Abone_NonNT_ama_NT_Flagi_varsa_ucuz_almali() throws Exception {
+    public void Test15_NonNT_ama_NT_Flagi_var() throws Exception {
         assumeTrue("Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi ayari evet olmadigindan test atlaniyor", c.Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi.equalsIgnoreCase("evet"));
 
         log.NTYap(c.Tarifesi_uygun_bir_msisdn);
@@ -1138,7 +1138,7 @@ public class AveaSMSKanali {
             File[] files = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.endsWith(".txt");
+                    return name.endsWith(".txt")&&name.startsWith("Test");
                 }
             });
 
@@ -1159,14 +1159,36 @@ public class AveaSMSKanali {
             }
             //remember close it
             zos.close();
-            File source = new File("Config.txt");
+          /*  File source = new File("Config.txt");
             File dest = new File("C:\\Logs\\Config_"+c.kw+".txt");
             try {
                 FileUtils.copyFile(source, dest);
                 System.out.println("Config.txt Buraya Kopyalandi: "+"C:\\Logs\\Config_"+c.kw+".txt");
             } catch (Exception e) {
                 e.printStackTrace();
+            }*/
+
+            try {
+                FileReader reader = new FileReader("AUTO-Generated-File_Config_ingilizce_karakterli.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+                FileWriter writer = new FileWriter("C:\\Logs\\Config_"+c.kw+".txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(line.replaceAll("sifre=.*","sifre=xxx").replaceAll("user=.*","user=xxx"));
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+
+                System.out.println( "Config.txt c:\\Logs a kopyalandi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println( "Config kopyalama sirasinda hata");
+
             }
+
             System.out.println("SMS Kanali loglarini iceren C:\\Logs\\" + c.kw + "_Logs.zip olusturuldu");
         } catch (Exception ex) {
             System.err.println("Loglar Arsivlenirken hata. UAC'yi kapatiniz. Bkz. Google.");
@@ -1249,7 +1271,7 @@ public class AveaSMSKanali {
             System.out.println("Bakiyesi: " + money);
         }
         m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
-        assumeTrue("BSG_10000:SUCCESS alinamadi", m.find());
+        assertTrue("BSG_10000:SUCCESS alinamadi", m.find());
 
         if (money == null)
             return new BigDecimal(0);
@@ -1265,7 +1287,7 @@ public class AveaSMSKanali {
         Matcher m = Pattern.compile("<soldProducts><productName>" + servis + "</productName><state>" + state + "</state><type>Package</type>")
                 .matcher(resp);
 
-        assumeTrue(servis + " " + state + " bulunamadi", m.find());
+        Assert.assertTrue(servis + " " + state + " bulunamadi", m.find());
 
     }
 
@@ -1276,10 +1298,10 @@ public class AveaSMSKanali {
         }
         String resp = postSOAPXML(msisdn);
         Matcher m = Pattern.compile("<soldProducts><productName>" + servis + "</productName>").matcher(resp);
-        assumeFalse(servis + " hala abone uzerinde", m.find());
+        Assert.assertFalse(servis + " hala abone uzerinde", m.find());
 
         m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
-        assumeTrue("BSG_10000:SUCCESS alinamadi", m.find());
+        Assert.assertTrue("BSG_10000:SUCCESS alinamadi", m.find());
 
     }
 
@@ -1342,7 +1364,7 @@ public class AveaSMSKanali {
         Matcher m = Pattern.compile("<balanceName>"+bonus+"</balanceName>")
                 .matcher(resp);
 
-        assumeTrue(bonus + " bulunamadi", m.find());
+        Assert.assertTrue(bonus + " bulunamadi", m.find());
 
     }
     public void checkBonusNotExist(String msisdn, String bonus) {
@@ -1354,9 +1376,9 @@ public class AveaSMSKanali {
         Matcher m = Pattern.compile("<balanceName>"+bonus+"</balanceName>")
                 .matcher(resp);
 
-        assumeFalse(bonus + " hala uzerinde", m.find());
+        assertFalse(bonus + " hala uzerinde", m.find());
         m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
-        assumeTrue("BSG_10000:SUCCESS alinamadi", m.find());
+        assertTrue("BSG_10000:SUCCESS alinamadi", m.find());
 
     }
 
