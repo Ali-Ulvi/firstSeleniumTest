@@ -161,11 +161,17 @@ public class AveaMerkez {
 
     }
 
-    //@AfterClass
-    public static void clean() {
+    @AfterClass
+    public static void clean() throws IOException {
 
-        driver.close();
-        driver.quit();
+       // driver.close();
+        //driver.quit();
+
+        try {
+            Runtime.getRuntime().exec("taskkill /F /IM geckodriver.exe ");
+        } catch (IOException e) {
+            System.out.println("kill driver exception");
+        }
     }
 
     //We should add @Test annotation that JUnit will run below method

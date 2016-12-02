@@ -1,17 +1,18 @@
 package com.kafein.aveamerkez;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
 import org.junit.*;
 import org.junit.runners.MethodSorters;
+import org.testng.asserts.SoftAssert;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -24,13 +25,11 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
-//import org.testng.asserts.SoftAssert;
 
 /**
  * Created by Ali Ulvi Talipoglu via Kafein on 19.11.2016.
@@ -76,10 +75,15 @@ public class AveaSMSKanali {
 
     }
 
-    // @AfterClass
+    @AfterClass
     public static void clean() {
-        sms.driver.close();
-        sms.driver.quit();
+        //  sms.driver.close();
+        //sms.driver.quit();
+        try {
+            Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe ");
+        } catch (IOException e) {
+            System.out.println("kill driver exception");
+        }
     }
 
 
@@ -97,7 +101,7 @@ public class AveaSMSKanali {
             sms.sendSms(c.msisdn, c.kn, c.kw);
 
         checkService(c.msisdn, c.NT_servis, "ACTIVE/STD/STD");
-        checkBonus(c.msisdn,c.Paket_Kayit_Bonusu);
+        checkBonus(c.msisdn, c.Paket_Kayit_Bonusu);
 
         BigDecimal moneyAfter = getMoney(c.msisdn);
         BigDecimal fiyat = money.subtract(moneyAfter);
@@ -108,7 +112,15 @@ public class AveaSMSKanali {
 
         String gun = addDay();
         String kayitSms = c.kayitSms;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -127,7 +139,15 @@ public class AveaSMSKanali {
 
         if (iterator.hasNext()) {
             kayitSms = c.kayitSms2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -180,13 +200,21 @@ public class AveaSMSKanali {
         String gun = addDay();
         String iptalSMS = c.iptalSMS;
         iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
-        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);iptalSMS = iptalSMS.replaceAll("\\.$","");iptalSMS = iptalSMS.replaceAll("\\*","\\\\*");iptalSMS = iptalSMS.replaceAll("\\.","\\\\.");iptalSMS = iptalSMS.replaceAll("ayabilirsin J$","ayabilirsin :)");iptalSMS = iptalSMS.replaceAll("\\(","\\\\(");iptalSMS = iptalSMS.replaceAll("\\)","\\\\)");iptalSMS = iptalSMS.replaceAll("\\]","\\\\]");iptalSMS = iptalSMS.replaceAll("\\[","\\\\["); 
+        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
+        iptalSMS = iptalSMS.replaceAll("\\.$", "");
+        iptalSMS = iptalSMS.replaceAll("\\*", "\\\\*");
+        iptalSMS = iptalSMS.replaceAll("\\.", "\\\\.");
+        iptalSMS = iptalSMS.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        iptalSMS = iptalSMS.replaceAll("\\(", "\\\\(");
+        iptalSMS = iptalSMS.replaceAll("\\)", "\\\\)");
+        iptalSMS = iptalSMS.replaceAll("\\]", "\\\\]");
+        iptalSMS = iptalSMS.replaceAll("\\[", "\\\\[");
         iptalSMS = iptalSMS.replace(" kadar ", " kadar \\s?");
         System.out.println("Beklenen iptal SMSi: \n" + iptalSMS);
         //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         String pattern = "\\s?\\s?\\s?" + iptalSMS + "\\.?\\.?\\.?\\s?\\s?\\s?";
         checkServiceNotExist(c.msisdn, c.NT_servis);
-        checkBonusNotExist(c.msisdn,c.Paket_Kayit_Bonusu);
+        checkBonusNotExist(c.msisdn, c.Paket_Kayit_Bonusu);
         List<String> smsler = log.getAsbLog(c.msisdn, "Test03_iptalSMS");
         Iterator<String> iterator = smsler.iterator();
         assertThat(iterator.next(), RegexMatcher.matchesRegex(pattern));
@@ -215,8 +243,7 @@ public class AveaSMSKanali {
         if (!c.Paketi_zaten_var_SMSi.isEmpty()) { //Paket 1 kere alinabilen bir paketse Bir onceki test casede 1 kere alabildi demekki
 
             Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
-        }
-        else{
+        } else {
             //2 kere alinabilen paket. bu noktada 2 kere alinmis oluyor. 5 nolu test nedeniyle. Gercek miktarlar sorgulandigi test edilmis oluyor
             String KalanSMS_2KereAlmis = multiplyBonusAmountsBy2(c.kalanSMS);
             Assert.assertEquals(KalanSMS_2KereAlmis.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
@@ -239,12 +266,19 @@ public class AveaSMSKanali {
 
         sms.sendSms(c.msisdn, c.kn, "IPTAL " + c.kw);
         checkServiceNotExist(c.msisdn, c.NT_servis);
-        checkBonusNotExist(c.msisdn,c.Paket_Kayit_Bonusu);
+        checkBonusNotExist(c.msisdn, c.Paket_Kayit_Bonusu);
         String gun = addDay();
         String iptalSMS = c.iptal_edilecek_paketi_yoksa_SMSi;
         iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
         iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
-        iptalSMS = iptalSMS.replaceAll("\\.$","");iptalSMS = iptalSMS.replaceAll("\\*","\\\\*");iptalSMS = iptalSMS.replaceAll("\\.","\\\\.");iptalSMS = iptalSMS.replaceAll("ayabilirsin J$","ayabilirsin :)");iptalSMS = iptalSMS.replaceAll("\\(","\\\\(");iptalSMS = iptalSMS.replaceAll("\\)","\\\\)");iptalSMS = iptalSMS.replaceAll("\\]","\\\\]");iptalSMS = iptalSMS.replaceAll("\\[","\\\\["); 
+        iptalSMS = iptalSMS.replaceAll("\\.$", "");
+        iptalSMS = iptalSMS.replaceAll("\\*", "\\\\*");
+        iptalSMS = iptalSMS.replaceAll("\\.", "\\\\.");
+        iptalSMS = iptalSMS.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        iptalSMS = iptalSMS.replaceAll("\\(", "\\\\(");
+        iptalSMS = iptalSMS.replaceAll("\\)", "\\\\)");
+        iptalSMS = iptalSMS.replaceAll("\\]", "\\\\]");
+        iptalSMS = iptalSMS.replaceAll("\\[", "\\\\[");
         System.out.println("Beklenen iptal_edilecek_paketi_yoksa_SMSi: \n" + iptalSMS);
         String pattern = "\\s?\\s?\\s?" + iptalSMS + "\\.?\\.?\\.?\\s?\\s?\\s?";
 
@@ -267,6 +301,7 @@ public class AveaSMSKanali {
     public void Test05_Pakete_birden_fazla_kez_KayitSMS() throws Exception {
         //ilk kayit
         Test01_KayitSMS();
+        int bnsCount = getBonusCount(c.msisdn);
         if (c.Paketi_zaten_var_SMSi.isEmpty()) {
             BigDecimal money = getMoney(c.msisdn);
             Log.log.startAsbLog(c.msisdn);
@@ -276,17 +311,26 @@ public class AveaSMSKanali {
                 sms.sendSms(c.msisdn, c.kn, c.kw);
 
             checkService(c.msisdn, c.NT_servis, "ACTIVE/STD/STD");
-            checkBonus(c.msisdn,c.Paket_Kayit_Bonusu);
+            checkBonus(c.msisdn, c.Paket_Kayit_Bonusu);
             BigDecimal moneyAfter = getMoney(c.msisdn);
             BigDecimal fiyat = money.subtract(moneyAfter);
             Assert.assertEquals(c.NT_Fiyat + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(c.NT_Fiyat).toString()), Double.parseDouble(fiyat.toString()), 0);
-
+            int bnsCount2 = getBonusCount(c.msisdn);
+            assertTrue("Paketi 2 kere aldiginda bonus sayisi artmadi", bnsCount2 > bnsCount);
             List<String> smsler = log.getAsbLog(c.msisdn, "Test05_Pakete_birden_fazla_kez_KayitSMS");
             Iterator<String> iterator = smsler.iterator();
 
             String gun = addDay();
             String kayitSms = c.kayitSms;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -302,7 +346,15 @@ public class AveaSMSKanali {
 
             if (iterator.hasNext()) {
                 kayitSms = c.kayitSms2;
-                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replaceAll("\\.$", "");
+                kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+                kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+                kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+                kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+                kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+                kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+                kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
                 kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
                 kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
                 kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -324,7 +376,6 @@ public class AveaSMSKanali {
         } else {//1den fazla kez alamaz,
             BigDecimal money = getMoney(c.msisdn);
 
-
             Log.log.startAsbLog(c.msisdn);
             if (!c.TCID.isEmpty())
                 sms.sendSms(c.msisdn, c.kn, c.kw + " " + c.TCID);
@@ -332,18 +383,27 @@ public class AveaSMSKanali {
                 sms.sendSms(c.msisdn, c.kn, c.kw);
 
             checkService(c.msisdn, c.NT_servis, "ACTIVE/STD/STD");
-            checkBonus(c.msisdn,c.Paket_Kayit_Bonusu);
+            checkBonus(c.msisdn, c.Paket_Kayit_Bonusu);
 
             BigDecimal moneyAfter = getMoney(c.msisdn);
             BigDecimal fiyat = money.subtract(moneyAfter);
             Assert.assertEquals(0 + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(0).toString()), Double.parseDouble(fiyat.toString()), 0);
-
+            int bnsCount2 = getBonusCount(c.msisdn);
+            assertTrue("Paketi 2 kere almaya calistiginda bonus sayisi artti", bnsCount2 == bnsCount);
             List<String> smsler = log.getAsbLog(c.msisdn, "Test05_Pakete_birden_fazla_kez_KayitSMS");
             Iterator<String> iterator = smsler.iterator();
 
             String gun = addDay();
             String kayitSms = c.Paketi_zaten_var_SMSi;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -361,7 +421,15 @@ public class AveaSMSKanali {
 
             if (iterator.hasNext()) {
                 kayitSms = c.kayitSms2;
-                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replaceAll("\\.$", "");
+                kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+                kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+                kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+                kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+                kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+                kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+                kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
                 kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
                 kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
                 kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -399,13 +467,21 @@ public class AveaSMSKanali {
         List<String> smsler = log.getAsbLog(c.yetersizBakiyemsisdn, "Test06_Yetersiz_BakiyeKayitSMS");
         Iterator<String> iterator = smsler.iterator();
         if (c.bakiyesizAlim.equalsIgnoreCase("evet"))
-            checkService(c.yetersizBakiyemsisdn,c.NT_servis,"PASSIVE/STD/FOLLOW");
+            checkService(c.yetersizBakiyemsisdn, c.NT_servis, "PASSIVE/STD/FOLLOW");
         else
-            checkServiceNotExist(c.yetersizBakiyemsisdn,c.NT_servis);
-        checkBonusNotExist(c.yetersizBakiyemsisdn,c.Paket_Kayit_Bonusu);
+            checkServiceNotExist(c.yetersizBakiyemsisdn, c.NT_servis);
+        checkBonusNotExist(c.yetersizBakiyemsisdn, c.Paket_Kayit_Bonusu);
         String gun = addDay();
         String kayitSms = c.yetersizBakiyeKayitSMS;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -424,7 +500,15 @@ public class AveaSMSKanali {
 
         if (iterator.hasNext()) {
             kayitSms = c.kayitSms2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -470,7 +554,15 @@ public class AveaSMSKanali {
 
         String gun = addDay();
         String kayitSms = c.NonNT_Kayit_Mesaji;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -488,7 +580,15 @@ public class AveaSMSKanali {
 
         if (iterator.hasNext()) {
             kayitSms = c.NonNT_Kayit_Mesaji2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -530,6 +630,166 @@ public class AveaSMSKanali {
     }
 
     @Test
+    public void Test08_v1_NonNt_Pakete_birden_fazla_kez_KayitSMS() throws Exception {
+        //test7de almisti zaten
+        int bnsCount = getBonusCount(c.NonNT_msisdn);
+
+        checkService(c.NonNT_msisdn, c.NonNT_servis, "ACTIVE/STD/STD");
+        checkBonus(c.NonNT_msisdn, c.Paket_Kayit_Bonusu);
+        if (c.Paketi_zaten_var_SMSi.isEmpty()) {
+            BigDecimal money = getMoney(c.NonNT_msisdn);
+            Log.log.startAsbLog(c.NonNT_msisdn);
+            if (!c.TCID.isEmpty())
+                sms.sendSms(c.NonNT_msisdn, c.kn, c.kw + " " + c.TCID);
+            else
+                sms.sendSms(c.NonNT_msisdn, c.kn, c.kw);
+
+            checkService(c.NonNT_msisdn, c.NonNT_servis, "ACTIVE/STD/STD");
+            checkBonus(c.NonNT_msisdn, c.Paket_Kayit_Bonusu);
+            BigDecimal moneyAfter = getMoney(c.NonNT_msisdn);
+            BigDecimal fiyat = money.subtract(moneyAfter);
+            Assert.assertEquals(c.NonNT_Fiyat + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(c.NonNT_Fiyat).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+            List<String> smsler = log.getAsbLog(c.NonNT_msisdn, "Test05_Pakete_birden_fazla_kez_KayitSMS");
+            Iterator<String> iterator = smsler.iterator();
+
+            String gun = addDay();
+            String kayitSms = c.NonNT_Kayit_Mesaji;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+            String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+            // Create a Pattern object
+            Pattern r = Pattern.compile(pattern);
+            String gidenSms1 = iterator.next();
+            // Now create matcher object.
+            Matcher m = r.matcher(gidenSms1);
+            Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+            if (iterator.hasNext()) {
+                kayitSms = c.NonNT_Kayit_Mesaji2;
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replaceAll("\\.$", "");
+                kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+                kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+                kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+                kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+                kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+                kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+                kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
+                kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+                System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+                //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
+                pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+                // Create a Pattern object
+                r = Pattern.compile(pattern);
+                String gidenSms2 = iterator.next();
+                // Now create matcher object.
+                m = r.matcher(gidenSms2);
+
+                Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+            }
+            int bnsCount2 = getBonusCount(c.NonNT_msisdn);
+
+            assertTrue("Paketi 2 kere aldiginda bonus sayisi artmadi", bnsCount2 > bnsCount);
+            System.out.println("\n test8v1 NonNt birden fazla Kayit SMS bitti");
+
+        } else {//1den fazla kez alamaz,
+            BigDecimal money = getMoney(c.NonNT_msisdn);
+
+
+            Log.log.startAsbLog(c.NonNT_msisdn);
+            if (!c.TCID.isEmpty())
+                sms.sendSms(c.NonNT_msisdn, c.kn, c.kw + " " + c.TCID);
+            else
+                sms.sendSms(c.NonNT_msisdn, c.kn, c.kw);
+
+            checkService(c.NonNT_msisdn, c.NonNT_servis, "ACTIVE/STD/STD");
+            checkBonus(c.NonNT_msisdn, c.Paket_Kayit_Bonusu);
+
+            BigDecimal moneyAfter = getMoney(c.NonNT_msisdn);
+            BigDecimal fiyat = money.subtract(moneyAfter);
+            Assert.assertEquals(0 + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(0).toString()), Double.parseDouble(fiyat.toString()), 0);
+
+            List<String> smsler = log.getAsbLog(c.NonNT_msisdn, "Test05_Pakete_birden_fazla_kez_KayitSMS");
+            Iterator<String> iterator = smsler.iterator();
+
+            String gun = addDay();
+            String kayitSms = c.Paketi_zaten_var_SMSi;
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
+            kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+            kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+            System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
+            String pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+
+            // Create a Pattern object
+            Pattern r = Pattern.compile(pattern);
+            String gidenSms1 = iterator.next();
+            // Now create matcher object.
+            Matcher m = r.matcher(gidenSms1);
+
+            Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
+
+            if (iterator.hasNext()) {
+                kayitSms = c.NonNT_Kayit_Mesaji2;
+                kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+                kayitSms = kayitSms.replaceAll("\\.$", "");
+                kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+                kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+                kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+                kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+                kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+                kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+                kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
+                kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
+                kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
+
+                System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
+                pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+                // Create a Pattern object
+                r = Pattern.compile(pattern);
+                String gidenSms2 = iterator.next();
+                // Now create matcher object.
+                m = r.matcher(gidenSms2);
+
+                Assert.assertTrue("2. Kayit SMSi yanlis..:" + gidenSms2, m.matches());
+
+            }
+            int bnsCount2 = getBonusCount(c.NonNT_msisdn);
+
+            assertTrue("Paketi 2 kere aldiginda bonus sayisi artmadi", bnsCount2 == bnsCount);
+            System.out.println("\n test8v1 NonNt birden fazla alamaz Kayit SMSi bitti");
+
+        }
+    }
+
+    @Test
     public void Test08_v2_NonNt_iptalSMS() throws Exception {
 
         assumeTrue(!c.iptalSMS.isEmpty());
@@ -539,13 +799,21 @@ public class AveaSMSKanali {
         String gun = addDay();
         String iptalSMS = c.iptalSMS;
         iptalSMS = iptalSMS.replace("{sysdate+30}", gun);
-        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);iptalSMS = iptalSMS.replaceAll("\\.$","");iptalSMS = iptalSMS.replaceAll("\\*","\\\\*");iptalSMS = iptalSMS.replaceAll("\\.","\\\\.");iptalSMS = iptalSMS.replaceAll("ayabilirsin J$","ayabilirsin :)");iptalSMS = iptalSMS.replaceAll("\\(","\\\\(");iptalSMS = iptalSMS.replaceAll("\\)","\\\\)");iptalSMS = iptalSMS.replaceAll("\\]","\\\\]");iptalSMS = iptalSMS.replaceAll("\\[","\\\\["); 
+        iptalSMS = iptalSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy|<BONUS_END_DATE>", gun);
+        iptalSMS = iptalSMS.replaceAll("\\.$", "");
+        iptalSMS = iptalSMS.replaceAll("\\*", "\\\\*");
+        iptalSMS = iptalSMS.replaceAll("\\.", "\\\\.");
+        iptalSMS = iptalSMS.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        iptalSMS = iptalSMS.replaceAll("\\(", "\\\\(");
+        iptalSMS = iptalSMS.replaceAll("\\)", "\\\\)");
+        iptalSMS = iptalSMS.replaceAll("\\]", "\\\\]");
+        iptalSMS = iptalSMS.replaceAll("\\[", "\\\\[");
         iptalSMS = iptalSMS.replace(" kadar ", " kadar \\s?");
         System.out.println("Beklenen iptal SMSi: \n" + iptalSMS);
         //String kayitSMS="Paketiniz hattiniza basariyla tanimlanmistir. Bal 300 Paketi ile 1 ay boyunca yurtici her yone 300 dakika konusabilirsiniz.Kullanim suresi sonunda hattinizda yeterli bakiye olmasi halinde paketiniz otomatik olarak yenilenecektir.Paketinizi iptal etmek icin IPTAL yazip 2070e gonderin";
         String pattern = "\\s?\\s?\\s?" + iptalSMS + "\\.?\\.?\\.?\\s?\\s?\\s?";
         checkServiceNotExist(c.NonNT_msisdn, c.NonNT_servis);
-        checkBonusNotExist(c.NonNT_msisdn,c.Paket_Kayit_Bonusu);
+        checkBonusNotExist(c.NonNT_msisdn, c.Paket_Kayit_Bonusu);
         List<String> smsler = log.getAsbLog(c.NonNT_msisdn, "Test08_v2_NonNt_iptalSMS");
         Iterator<String> iterator = smsler.iterator();
         assertThat(iterator.next(), RegexMatcher.matchesRegex(pattern));
@@ -581,14 +849,22 @@ public class AveaSMSKanali {
         Iterator<String> iterator = smsler.iterator();
 
         if (c.bakiyesizAlim.equalsIgnoreCase("evet"))
-            checkService(c.NonNtyetersizBakiyeMsisdn,c.NonNT_servis,"PASSIVE/STD/FOLLOW");
+            checkService(c.NonNtyetersizBakiyeMsisdn, c.NonNT_servis, "PASSIVE/STD/FOLLOW");
         else
-            checkServiceNotExist(c.NonNtyetersizBakiyeMsisdn,c.NonNT_servis);
+            checkServiceNotExist(c.NonNtyetersizBakiyeMsisdn, c.NonNT_servis);
         checkBonusNotExist(c.NonNtyetersizBakiyeMsisdn, c.Paket_Kayit_Bonusu);
 
         String gun = addDay();
         String kayitSms = c.NonNtyetersizBakiyeKayitSMS;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -607,7 +883,15 @@ public class AveaSMSKanali {
 
         if (iterator.hasNext()) {
             kayitSms = c.kayitSms2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -1021,7 +1305,15 @@ public class AveaSMSKanali {
 
         String gun = addDay();
         String kayitSms = c.kayitSms;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -1045,7 +1337,15 @@ public class AveaSMSKanali {
         silServisler.start();
         if (iterator.hasNext()) {
             kayitSms = c.kayitSms2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
@@ -1082,33 +1382,49 @@ public class AveaSMSKanali {
         Assert.assertEquals(c.NT_Fiyat + " TL dusmesi gerekirken " + fiyat + " TL dustu. Servis veya fiyati yanlis.", Double.parseDouble(new BigDecimal(c.NT_Fiyat).toString()), Double.parseDouble(fiyat.toString()), 0);
 
         smsler = log.getAsbLog(c.Tarifesi_uygun_bir_msisdn, "Test15_Abone_NonNT_ama_NT_Flagi_varsa_ucuz_almali.2.alim");
-         iterator = smsler.iterator();
+        iterator = smsler.iterator();
 
-         gun = addDay();
-         kayitSms = c.kayitSms;
-        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+        gun = addDay();
+        kayitSms = c.kayitSms;
+        kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+        kayitSms = kayitSms.replaceAll("\\.$", "");
+        kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+        kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+        kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+        kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+        kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+        kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+        kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
         kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
         kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
 
         System.out.println("Beklenen kayit SMSi: \n" + kayitSms);
-         pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
+        pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
 
         // Create a Pattern object
-         r = Pattern.compile(pattern);
-         gidenSms1 = iterator.next();
+        r = Pattern.compile(pattern);
+        gidenSms1 = iterator.next();
         // Now create matcher object.
-         m = r.matcher(gidenSms1);
+        m = r.matcher(gidenSms1);
 
         Assert.assertTrue("Kayit SMSi yanlis: " + gidenSms1, m.matches());
 
         if (iterator.hasNext()) {
             kayitSms = c.kayitSms2;
-            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);kayitSms = kayitSms.replaceAll("\\.$","");kayitSms = kayitSms.replaceAll("\\*","\\\\*");kayitSms = kayitSms.replaceAll("\\.","\\\\.");kayitSms = kayitSms.replaceAll("ayabilirsin J$","ayabilirsin :)");kayitSms = kayitSms.replaceAll("\\(","\\\\(");kayitSms = kayitSms.replaceAll("\\)","\\\\)");kayitSms = kayitSms.replaceAll("\\]","\\\\]");kayitSms = kayitSms.replaceAll("\\[","\\\\[");
+            kayitSms = kayitSms.replaceAll("<BONUS_END_DATE>", gun);
+            kayitSms = kayitSms.replaceAll("\\.$", "");
+            kayitSms = kayitSms.replaceAll("\\*", "\\\\*");
+            kayitSms = kayitSms.replaceAll("\\.", "\\\\.");
+            kayitSms = kayitSms.replaceAll("ayabilirsin J$", "ayabilirsin :)");
+            kayitSms = kayitSms.replaceAll("\\(", "\\\\(");
+            kayitSms = kayitSms.replaceAll("\\)", "\\\\)");
+            kayitSms = kayitSms.replaceAll("\\]", "\\\\]");
+            kayitSms = kayitSms.replaceAll("\\[", "\\\\[");
             kayitSms = kayitSms.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI’a", gun.replace(".", "/") + " saat 23:59'a");//ters tirnak calismiyor ama ekledim
             kayitSms = kayitSms.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
-            
+
             System.out.println("Beklenen kayit SMSi2: \n" + kayitSms);
             pattern = "\\s?\\s?\\s?" + kayitSms + "\\.?\\.?\\.?\\s?\\s?\\s?";
             // Create a Pattern object
@@ -1125,6 +1441,59 @@ public class AveaSMSKanali {
 
     }
 
+    @Test
+    public void Test16_PromoAlternatifKeywordleri() throws Exception {
+        String no = Config.config.msisdn;
+
+        SoftAssert softAssert = new SoftAssert();
+        System.out.println("Getting correct operation IDs from log assuming keyword in Config.txt is correct:");
+        String opID = log.getTheValidOperationIdFromLog();
+        String kalanOpID = log.getTheValidOperationIdFromLog(Log.Type.KALAN);
+        String iptalOpID = log.getTheValidOperationIdFromLog(Log.Type.IPTAL);
+        FileReader reader = new FileReader("Alternatif Keywordler.txt");
+        BufferedReader bufferedReader = new BufferedReader(reader);
+
+        String kw;
+
+
+        JSch jsch = new JSch();
+        Session session = jsch.getSession("weblogic", "10.248.127.28", 22);
+        session.setPassword("promo123");
+        Properties config = new Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.connect();
+        while ((kw = bufferedReader.readLine()) != null) {
+            if (kw.isEmpty()) continue;
+            String kwInFile=kw;
+            System.out.println("Test edilecek Altenatif Keyword:"+kw);
+            log.startPromoLog(Config.config.msisdn);
+            SendSms.sendSms.sendSms(no, Config.config.kn, kw, (long) (Long.parseLong(Config.config.sleep) * 0.75));
+
+            BufferedReader in;
+            ChannelExec channel2 = (ChannelExec) session.openChannel("exec");
+            in = new BufferedReader(new InputStreamReader(channel2.getInputStream()));
+
+            kw=kw.toUpperCase().trim();
+            if (kw.contains("KALAN")) opID=kalanOpID;
+            else if (kw.contains("IPTAL"))opID=iptalOpID;
+            channel2.setCommand("cd /javappl/promotionTest;lineNo=$(cat LastLineNumber" + no + ");lineNo=$(expr $lineNo + 1);cd /javappl/kanbanPromo/log/;tail +$lineNo  promo.log|grep " + no + "|egrep 'Send SMS To Process : com.avea.promotion.sms.SmsMessage@.+\\[90" + no + "\\|" + Config.config.kn + "\\|" + kw + "\\]|APSProcessHandler.*SMSLogModel.* operation_id=" + opID + ", msisdn=90" + no + ", service_number=" + Config.config.kn + ", message=" + kw + ", '");
+            channel2.connect();
+            String msg;
+            int magicCounter = 0;//counts number of lines returned from grep log one of which is from pwd command  Alternatif Keywordler.txt
+            while ((msg = in.readLine()) != null) {
+                System.out.println(msg);
+                magicCounter++;
+            }
+
+            channel2.disconnect();
+
+
+            softAssert.assertEquals(magicCounter, 2, "Keyword:" + kwInFile + " Basarisiz. Keyword Promo veya IR'da tanimli degil veya baska akisa gidiyor. SMS'in promoya mi IR'a mi gonderilecegini configden ayarlayabilirsiniz.");
+        }
+        session.disconnect();
+        softAssert.assertAll();
+    }
 
     @Test
     public void _Loglar_C_Logs_Klasorunde_Zipleniyor() {
@@ -1138,12 +1507,12 @@ public class AveaSMSKanali {
             File[] files = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.endsWith(".txt")&&name.startsWith("Test");
+                    return name.endsWith(".txt") && name.startsWith("Test");
                 }
             });
 
             for (File file : files) {
-                if (file.getName().contains("Config"))continue;
+                if (file.getName().contains("Config")) continue;
                 ZipEntry ze = new ZipEntry(file.getName());
                 zos.putNextEntry(ze);
                 FileInputStream in = new FileInputStream("C:\\Logs\\" + file.getName());
@@ -1173,19 +1542,19 @@ public class AveaSMSKanali {
                 BufferedReader bufferedReader = new BufferedReader(reader);
 
                 String line;
-                FileWriter writer = new FileWriter("C:\\Logs\\Config_"+c.kw+".txt", false);
+                FileWriter writer = new FileWriter("C:\\Logs\\Config_" + c.kw + ".txt", false);
                 BufferedWriter bufferedWriter = new BufferedWriter(writer);
                 while ((line = bufferedReader.readLine()) != null) {
-                    bufferedWriter.write(line.replaceAll("sifre=.*","sifre=xxx").replaceAll("user=.*","user=xxx"));
+                    bufferedWriter.write(line.replaceAll("sifre=.*", "sifre=xxx").replaceAll("user=.*", "user=xxx"));
                     bufferedWriter.newLine();
                 }
                 reader.close();
                 bufferedWriter.close();
 
-                System.out.println( "Config.txt c:\\Logs a kopyalandi");
+                System.out.println("Config.txt c:\\Logs a kopyalandi");
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println( "Config kopyalama sirasinda hata");
+                System.out.println("Config kopyalama sirasinda hata");
 
             }
 
@@ -1355,25 +1724,41 @@ public class AveaSMSKanali {
         return resp;
     }
 
+    public int getBonusCount(String msisdn) {
+
+        String resp = postSOAPXML(msisdn);
+        Matcher m = Pattern.compile("</instance></pockets>")
+                .matcher(resp);
+        int count = 0;
+        while (m.find()) {
+            count++;
+        }
+
+        System.out.println("bonus sayisi " + count);
+        return count;
+
+    }
+
     public void checkBonus(String msisdn, String bonus) {
         if (bonus.isEmpty()) {
             System.out.println("INFO: Kayit Bonusu bos birakildigindan kontrol edilmiyor.");
             return;
         }
         String resp = postSOAPXML(msisdn);
-        Matcher m = Pattern.compile("<balanceName>"+bonus+"</balanceName>")
+        Matcher m = Pattern.compile("<balanceName>" + bonus + "</balanceName>")
                 .matcher(resp);
 
         Assert.assertTrue(bonus + " bulunamadi", m.find());
 
     }
+
     public void checkBonusNotExist(String msisdn, String bonus) {
         if (bonus.isEmpty()) {
             System.out.println("notExist.INFO: Kayit Bonusu bos birakildigindan kontrol edilmiyor.");
             return;
         }
         String resp = postSOAPXML(msisdn);
-        Matcher m = Pattern.compile("<balanceName>"+bonus+"</balanceName>")
+        Matcher m = Pattern.compile("<balanceName>" + bonus + "</balanceName>")
                 .matcher(resp);
 
         assertFalse(bonus + " hala uzerinde", m.find());
@@ -1389,28 +1774,28 @@ public class AveaSMSKanali {
         while (m.find()) {
 
             String amnt = m.group(2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
 
         }
         r = Pattern.compile("(?<=(paket|kapsam).* )([0-9]+)( +(sms|kisa mesaj))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         m = r.matcher(testStr);
         while (m.find()) {
             String amnt = m.group(2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
 
         r = Pattern.compile("(?<=(paket|kapsam).* )([0-9]+)( +(mb|mega ?byte))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         m = r.matcher(testStr);
         while (m.find()) {
             String amnt = m.group(2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
 
         r = Pattern.compile("(?<=(paket|kapsam).* )([0-9]+)( +mms|(multi ?med(i|y)a ?mesaj))", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         m = r.matcher(testStr);
         while (m.find()) {
             String amnt = m.group(2);
-            testStr=testStr.replaceAll(amnt + "("+m.group(3)+")",String.valueOf(Long.parseLong(amnt) * 2)+"$1");
+            testStr = testStr.replaceAll(amnt + "(" + m.group(3) + ")", String.valueOf(Long.parseLong(amnt) * 2) + "$1");
         }
         return testStr;
 

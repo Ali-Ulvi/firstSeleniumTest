@@ -26,7 +26,12 @@ public class SendSms {
     static WebElement bt;
     static WebElement kn;
 
+    //Overload without sleep param
     public void sendSms(String no, String KN, String sms) throws Exception {
+        sendSms( no,  KN,  sms, Long.parseLong(c.sleep));
+    }
+
+    public void sendSms(String no, String KN, String sms, long sleepSeconds) throws Exception {
 
         if (c.SMS_Gonderimi_icin_ikinci_yolu_kullan.equalsIgnoreCase("evet")) {
 
@@ -54,7 +59,7 @@ public class SendSms {
                 System.err.println("sent to IR");
 
             }
-            Thread.sleep(Long.parseLong(c.sleep) * 1000);
+            Thread.sleep(sleepSeconds * 1000);
 
             return;
         }
@@ -123,10 +128,11 @@ public class SendSms {
         }
         driver.manage().window().setSize(new Dimension(66, 549));
         driver.manage().window().setPosition(new Point(-29, -33));
-        Thread.sleep(Long.parseLong(c.sleep) * 1000);
+        Thread.sleep(sleepSeconds * 1000);
 
 
     }
+
 
     public WebElement fluentWait(final By locator) {
         Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
