@@ -1,6 +1,8 @@
 package com.kafein.aveamerkez;
 
 import com.google.common.base.Function;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -46,10 +48,22 @@ public class AveaMerkez {
     static WebDriver driver;
     static Sil sil,silNonNT;
 
- @BeforeClass
+
+    @Rule
+    public ScreenshotTestRule screenshotTestRule = new ScreenshotTestRule();
+
+    @BeforeClass
     public static void loadProps() {
 
         System.out.println("@BeforeClass: onceExecutedBeforeAll to read config");
+        File dir = new File("C:\\Logs");
+        FileFilter fileFilter = new WildcardFileFilter("test*_FAIL.png");
+        File[] files = dir.listFiles(fileFilter);
+        for (int i = 0; i < files.length; i++) {
+
+            FileUtils.deleteQuietly(files[i]);
+        }
+
         Properties prop = new Properties();
         InputStream input = null;
         System.out.println("Working Directory = " +
@@ -203,7 +217,7 @@ public class AveaMerkez {
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
         //waitForJStoLoad();
-        WebDriverWait wait = new WebDriverWait(driver, 89,200);
+        WebDriverWait wait = new WebDriverWait(driver, 89,100);
        // wait.until(new page_loaded("#searchmsisdn", 1));
         wait.until(ExpectedConditions.stalenessOf(guncelle));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
@@ -350,6 +364,7 @@ public class AveaMerkez {
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
         String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
         Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
+       captureScreenshot("test2_kalan_SUCCESS");
         driver.close();
         driver.switchTo().window(master);  // switch back to parent window
         System.out.println(sms+"\n test2 paket kalan bitti");
@@ -380,7 +395,7 @@ public class AveaMerkez {
             Assert.assertFalse("Hata mesaji bulundu:" + ms.getText(), ms.getText().contains("Hata:"));
         }
         String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
-        Assert.assertEquals("Iptal Mesaji Yanlis", message1, "  * " + pack + " paketinin iptali başarıyla yapıldı.");
+        Assert.assertEquals("Iptal Mesaji Yanlis", "  * 90"+msisdn+" nolu hat icin " + pack + " paketinin iptali başarıyla yapıldı.", message1);
 
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         String gun = addDay();
@@ -571,7 +586,7 @@ public class AveaMerkez {
         // WebElement txtBox = driver.findElement(By.cssSelector("#searchmsisdn"));
         WebElement guncelle = driver.findElement(By.cssSelector("input[value='Paketleri Guncelle']"));
         guncelle.click();
-        WebDriverWait wait = new WebDriverWait(driver, 66,200);
+        WebDriverWait wait = new WebDriverWait(driver, 89,100);
         wait.until(new page_loaded("#searchmsisdn", 1));
         silNonNT.join(4*60*1000);
         txtBox = fluentWait(By.cssSelector("#searchmsisdn"));
@@ -711,6 +726,7 @@ public class AveaMerkez {
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
         String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
         Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
+        captureScreenshot("test6_NonNT_kalan_SUCCESS");
         driver.switchTo().window(master);  // switch back to parent window
         System.out.println(sms+"\n test6 NonNt paket kalan bitti");
 
@@ -740,7 +756,7 @@ public class AveaMerkez {
             Assert.assertFalse("Hata mesaji bulundu:" + ms.getText(), ms.getText().contains("Hata:"));
         }
         String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
-        Assert.assertEquals("Iptal Mesaji Yanlis", message1, "  * " + pack + " paketinin iptali başarıyla yapıldı.");
+        Assert.assertEquals("Iptal Mesaji Yanlis", "  * 90"+NonNT_msisdn+" nolu hat icin " + pack + " paketinin iptali başarıyla yapıldı.", message1);
 
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         String gun = addDay();
@@ -1191,6 +1207,16 @@ testStr="500 dk";
         m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
         assumeTrue("BSG_10000:SUCCESS alinamadi",m.find());
 
+    }
+    public void captureScreenshot(String fileName) {
+        try {
+
+            FileOutputStream out = new FileOutputStream("C:\\Logs\\" + fileName + ".png");
+            out.write(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES));
+            out.close();
+        } catch (Exception e) {
+            // No need to crash the tests if the screenshot fails
+        }
     }
 
 

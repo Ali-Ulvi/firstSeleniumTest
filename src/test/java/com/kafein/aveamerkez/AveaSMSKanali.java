@@ -3,6 +3,7 @@ package com.kafein.aveamerkez;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -30,6 +31,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
+
+//import org.junit.*;
 
 /**
  * Created by Ali Ulvi Talipoglu via Kafein on 19.11.2016.
@@ -59,7 +62,7 @@ public class AveaSMSKanali {
                 System.out.println("Directory: " + strDirectoy + " created");
             }
         } catch (Exception e) {//Catch exception if any
-            System.err.println("c:\\Logs klasoru yaratilamadi. manuel yaratiniz ");
+            System.err.println("c:\\Logs klasoru yaratilamadi. yoksa manuel yaratiniz ");
         }
         //System.setProperty("webdriver.gecko.driver", c.gecko);
         //System.setProperty("webdriver.chrome.driver", "C:\\geckodriver-v0.11.1-win64\\chromedriver.exe");
@@ -1033,6 +1036,8 @@ public class AveaSMSKanali {
         smslerAsb = log.getAsbLog(c.TempMsisdn, "Test10_YasakTarifeSMSleri Tarife " + c.YasakTarife2);
         iterator = smsler.iterator();
         asbIterator = smslerAsb.iterator();
+        assertFalse("SMS bulunamadı", !iterator.hasNext() && !asbIterator.hasNext());
+
         assertFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
         if (iterator.hasNext()) {
 
@@ -1150,6 +1155,8 @@ public class AveaSMSKanali {
         smslerAsb = log.getAsbLog(c.TempMsisdn, "Test11_YasakTarifeSMSleri2 Tarife " + c.YasakTarife4);
         iterator = smsler.iterator();
         asbIterator = smslerAsb.iterator();
+        assertFalse("SMS bulunamadı", !iterator.hasNext() && !asbIterator.hasNext());
+
         assumeFalse("Hem ASBden Hem Promodan SMS gonderildi.", iterator.hasNext() && asbIterator.hasNext());
         if (iterator.hasNext()) {
 
@@ -1465,8 +1472,8 @@ public class AveaSMSKanali {
         session.connect();
         while ((kw = bufferedReader.readLine()) != null) {
             if (kw.isEmpty()) continue;
-            String kwInFile=kw;
-            System.out.println("Test edilecek Altenatif Keyword:"+kw);
+            String kwInFile = kw;
+            System.out.println("Test edilecek Altenatif Keyword:" + kw);
             log.startPromoLog(Config.config.msisdn);
             SendSms.sendSms.sendSms(no, Config.config.kn, kw, (long) (Long.parseLong(Config.config.sleep) * 0.75));
 
@@ -1474,9 +1481,9 @@ public class AveaSMSKanali {
             ChannelExec channel2 = (ChannelExec) session.openChannel("exec");
             in = new BufferedReader(new InputStreamReader(channel2.getInputStream()));
 
-            kw=kw.toUpperCase().trim();
-            if (kw.contains("KALAN")) opID=kalanOpID;
-            else if (kw.contains("IPTAL"))opID=iptalOpID;
+            kw = kw.toUpperCase().trim();
+            if (kw.contains("KALAN")) opID = kalanOpID;
+            else if (kw.contains("IPTAL")) opID = iptalOpID;
             channel2.setCommand("cd /javappl/promotionTest;lineNo=$(cat LastLineNumber" + no + ");lineNo=$(expr $lineNo + 1);cd /javappl/kanbanPromo/log/;tail +$lineNo  promo.log|grep " + no + "|egrep 'Send SMS To Process : com.avea.promotion.sms.SmsMessage@.+\\[90" + no + "\\|" + Config.config.kn + "\\|" + kw + "\\]|APSProcessHandler.*SMSLogModel.* operation_id=" + opID + ", msisdn=90" + no + ", service_number=" + Config.config.kn + ", message=" + kw + ", '");
             channel2.connect();
             String msg;
@@ -1507,7 +1514,7 @@ public class AveaSMSKanali {
             File[] files = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.endsWith(".txt") && name.startsWith("Test");
+                    return (name.endsWith(".txt") ) && (name.startsWith("Test"));
                 }
             });
 
@@ -1558,7 +1565,29 @@ public class AveaSMSKanali {
 
             }
 
+            try {
+                FileReader reader = new FileReader("Alternatif Keywordler.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+                FileWriter writer = new FileWriter("C:\\Logs\\Alternatif Keywordler_" + c.kw + ".txt", false);
+                BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                while ((line = bufferedReader.readLine()) != null) {
+                    bufferedWriter.write(line);
+                    bufferedWriter.newLine();
+                }
+                reader.close();
+                bufferedWriter.close();
+
+                System.out.println("Alternatif Keywordler.txt c:\\Logs a kopyalandi");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Alternatif Keywords kopyalama sirasinda hata");
+
+            }
+
             System.out.println("SMS Kanali loglarini iceren C:\\Logs\\" + c.kw + "_Logs.zip olusturuldu");
+
         } catch (Exception ex) {
             System.err.println("Loglar Arsivlenirken hata. UAC'yi kapatiniz. Bkz. Google.");
         }
