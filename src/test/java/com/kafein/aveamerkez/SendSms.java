@@ -1,6 +1,7 @@
 package com.kafein.aveamerkez;
 
 import com.google.common.base.Function;
+import com.kafein.smsSender.sendSMSbyBPM_Pre_Package_WS;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
@@ -28,6 +29,16 @@ public class SendSms {
 
     //Overload without sleep param
     public void sendSms(String no, String KN, String sms) throws Exception {
+        if (c.BPM.equalsIgnoreCase("evet")){
+            //shortcut branching for BPM support option which cancels using this class. should have been an SMSsend controller class (SMSSenderFactory) for this for better design if this was a multiple-coder project
+            String myKw;
+            if (sms.contains("IPTAL"))
+                myKw="IPTAL " + c.KW;
+            else
+                myKw="KAYIT " + c.KW;
+            new sendSMSbyBPM_Pre_Package_WS().sendSms(no,c.TP,myKw);
+            return; //exit
+        }
         sendSms( no,  KN,  sms, Long.parseLong(c.sleep));
     }
 

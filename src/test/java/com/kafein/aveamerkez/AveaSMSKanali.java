@@ -175,6 +175,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test02_KalanSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.kalanSMS.isEmpty());
         log.startPromoLog(c.msisdn);
         sms.sendSms(c.msisdn, c.kn, "KALAN " + c.kw);
@@ -197,6 +198,8 @@ public class AveaSMSKanali {
     public void Test03_iptalSMS() throws Exception {
 
         assumeTrue(!c.iptalSMS.isEmpty());
+        sil.join(4 * 60 * 1000);
+
         Log.log.startAsbLog(c.msisdn);
 
         sms.sendSms(c.msisdn, c.kn, "IPTAL " + c.kw);
@@ -235,6 +238,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test05_v2_iptalSonrasiKalanSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.kalanSMS.isEmpty());
         //once iptal ediyoruz:
         Test03_iptalSMS();
@@ -614,6 +618,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test08_NonNT_KalanSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.kalanSMS.isEmpty());
         log.startPromoLog(c.NonNT_msisdn);
         sms.sendSms(c.NonNT_msisdn, c.kn, "KALAN " + c.kwNonNt);
@@ -917,6 +922,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test00_Paketi_Yoksa_KalanSMSi() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.kalanSMS_paket_yoksa.isEmpty());
         sil.join();
         log.startPromoLog(c.msisdn);
@@ -938,6 +944,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test02_v2_paketi_bitmis_ise_KalanSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.kalanSMS_paket_bitmis_ise.isEmpty());
         SilBonus silBonus = new SilBonus(c.msisdn);
         silBonus.start();
@@ -1199,6 +1206,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test12_FaturaliAboneSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.Faturali_No.isEmpty());
         log.startPromoLog(c.Faturali_No);
         sms.sendSms(c.Faturali_No, c.kn, c.kw);
@@ -1220,6 +1228,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test13_HotlineAboneSMS() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.Hotline_No.isEmpty());
         log.startPromoLog(c.Hotline_No);
         log.startAsbLog(c.Hotline_No);
@@ -1243,6 +1252,8 @@ public class AveaSMSKanali {
 
     @Test
     public void Test14_FirstCalldakiAboneSMSi() throws Exception {
+
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         assumeTrue(!c.First_Calldaki_Abone.isEmpty());
         log.startPromoLog(c.First_Calldaki_Abone);
         log.startAsbLog(c.First_Calldaki_Abone);
@@ -1450,6 +1461,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test16_PromoAlternatifKeywordleri() throws Exception {
+        assumeFalse(c.BPM.equalsIgnoreCase("evet"));
         String no = Config.config.msisdn;
 
         SoftAssert softAssert = new SoftAssert();

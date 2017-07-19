@@ -71,19 +71,23 @@ First_Calldaki_Abone=5050000906
 First_Call_SMSi=Degerli musterimiz, paketi satin alabilmek icin oncelikle ucretli bir gorusme yapmali ya da SMS gondermelisiniz.
 
 #NT Flag ile 'Daha önce yeni müşteri fiyatından (NT/NA’lı fiyat) bu paketi almış mı?' kontrolü varsa evet giriniz
-Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=evet
+Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=hayir
 Tarifesi_uygun_bir_msisdn=5050000911
 
-user=071111
-sifre=12345
-url=http://10.248.66.62:7002/aveamerkez2/salePackages.vas
+user=07111
+sifre=111
+url=http://10.248.68.185:7011/aveamerkez2/salePackages.vas
 
 mrte1_IP=10.248.68.127
 mrte1_Sifre=mrte1123
 SMS_kanali_promo_mu_ir_mi=promo
-Sleep_seconds_after_sending_SMS_before_checking_logs=15
+Sleep_seconds_after_sending_SMS_before_checking_logs=20
 #Firefox Driver internetten indirilebilir: https://github.com/mozilla/geckodriver/releases   örnegin: geckodriver-v0.11.1-win32.zip. Firefoxunuz da cok eski olmamali
 Firefox_Driver_Path=C:\\geckodriver.exe
 
 #bagli sistem calismadiginda alternatif yol kullanilabilir:
 SMS_Gonderimi_icin_ikinci_yolu_kullan=hayir
+
+BPM_PRE_PACKAGE_KULLAN=evet
+KW=HESAPLI300
+TP=211901
