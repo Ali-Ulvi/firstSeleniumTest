@@ -3,6 +3,10 @@ package com.kafein.aveamerkez;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -15,7 +19,17 @@ public class Config {
     public String kalanSMS_paket_bitmis_ise,TempMsisdn,ip,mrte1Pw,temizle,gecko,kanal,sleep,kayitSms2,NonNT_Kayit_Mesaji2,kwNonNt,kw,kn,iptal_edilecek_paketi_yoksa_SMSi,Paketi_zaten_var_SMSi,kalanSMS_paket_yoksa;
     public String BPM,KW,TP,SMS_Gonderimi_icin_ikinci_yolu_kullan,Paket_Kayit_Bonusu,Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi,Tarifesi_uygun_bir_msisdn,First_Call_SMSi,First_Calldaki_Abone,Hotline_No,Hotline_SMS,Faturali_SMSi,Faturali_No,YasakTarife1,YasakTarife2,YasakTarife3,YasakTarife4,YasakTarife1SMSi,YasakTarife2SMSi,YasakTarife3SMSi,YasakTarife4SMSi;
     public static Config config=new Config();//singleton pattern
+    public String addDay() {
+        Calendar today = Calendar.getInstance();
+        today.add(Calendar.DAY_OF_YEAR, Integer.parseInt(day));
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        Date date = today.getTime();
+        String r = dateFormat.format(date);
+        //System.out.println(r);
 
+
+        return r;
+    }
     public Config(){
         Properties prop = new Properties();
         InputStream input = null;
@@ -51,6 +65,7 @@ public class Config {
             prop.load(input);
 
             // get the property value and print it out
+            day = prop.getProperty("paket_kac_gunluk");
             kayitSms = prop.getProperty("NT_Kayit_Mesaji");
             kayitSms2 = prop.getProperty("NT_Kayit_Mesaji2");
             Paketi_zaten_var_SMSi = prop.getProperty("Paketi_zaten_var_SMSi");
@@ -60,7 +75,7 @@ public class Config {
             sleep = prop.getProperty("Sleep_seconds_after_sending_SMS_before_checking_logs");
             Paket_Kayit_Bonusu = prop.getProperty("Paket_Kayit_Bonusu");
             kalanSMS_paket_yoksa = prop.getProperty("kalanSMS_paket_yoksa");
-            kalanSMS_paket_bitmis_ise = prop.getProperty("kalanSMS_paket_bitmis_ise");
+            kalanSMS_paket_bitmis_ise = prop.getProperty("kalanSMS_paket_bitmis_ise").replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay());
             Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi = prop.getProperty("Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi");
             Tarifesi_uygun_bir_msisdn = prop.getProperty("Tarifesi_uygun_bir_msisdn");
             TempMsisdn= prop.getProperty("TempMsisdn");
@@ -80,9 +95,8 @@ public class Config {
             Hotline_SMS = prop.getProperty("Hotline_SMSi");
             First_Calldaki_Abone = prop.getProperty("First_Calldaki_Abone");
             First_Call_SMSi = prop.getProperty("First_Call_SMSi");
-            day = prop.getProperty("paket_kac_gunluk");
             iptalSMS = prop.getProperty("iptalSMS");
-            kalanSMS = prop.getProperty("kalanSMS");
+            kalanSMS = prop.getProperty("kalanSMS").replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay());
             yetersizBakiyemsisdn = prop.getProperty("NT_yetersizBakiye_Msisdn");
             yetersizBakiyeKayitSMS = prop.getProperty("NT_yetersizBakiye_KayitSMS");
             NonNtyetersizBakiyeKayitSMS = prop.getProperty("NONNT_yetersizBakiye_KayitSMS");

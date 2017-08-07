@@ -1,28 +1,29 @@
-Paket_Gorunen_ismi=DOLU 3GB Paketi
+Paket_Gorunen_ismi=BIMcell DOST 1GB Paketi
 NTmsisdn=5050000913
-NT_Kayit_Mesaji=DOLU 3GB Paketiniz 27 TL'ye hattiniza tanimlanmistir. 30 gun boyunca yurt icinde gecerli her yone 750 dakika, her yone 1000 SMS ve 3 GB cepten internetinizi DD/MM/YYYY saat HH:MI'a kadar kullanabilirsiniz.
+NT_Kayit_Mesaji=Degerli musterimiz, BIMcell Dost1GB Paketiniz 15 TL karsiliginda hattiniza tanimlanmistir. Yurt ici her yone 600 DK, yurt ici her yone 600 SMS, 1 GB cepten internet ve BIMcell’lilerle SINIRSIZ konusma hakkinizi DD/MM/YYYY saat HH:MI’a kadar kullanabilirsiniz.
 NT_Kayit_Mesaji2=
-NT_Fiyat=27
+NT_Fiyat=15
 
 #Bos birakilirsa 2 kere alabildigini test eder.
-Paketi_zaten_var_SMSi=
+Paketi_zaten_var_SMSi=Degerli musterimiz, hattiniza tanimli BIMcell Dost1GB Paketi bulunmaktadir. Iptal etmediyseniz 30 gunun sonunda otomatik yenilenecektir. Detayli bilgi: www.bimcell.com.tr
 
 #bos birakilirsa kontrol edilmez
-yenilemeli_ise_NT_servis_ismi=PP_Dolu3GBNTService_01381
+yenilemeli_ise_NT_servis_ismi=PP_BimcellDost1Gb_Service_01618
 
 #NonNt parametreleri bos birakilirsa test atlanir.
-NonNT_msisdn=5050000881
-NonNT_Kayit_Mesaji=DOLU 3GB Paketiniz 30 TL'ye hattiniza tanimlanmistir. 30 gun boyunca yurt icinde gecerli her yone 750 dakika, her yone 1000 SMS ve 3 GB cepten internetinizi DD/MM/YYYY saat HH:MI'a kadar kullanabilirsiniz.
+#NonNT_msisdn=5050000881
+NonNT_msisdn=
+NonNT_Kayit_Mesaji=Degerli musterimiz, BIMcell Dost1GB Paketiniz 15 TL karsiliginda hattiniza tanimlanmistir. Yurt ici her yone 600 DK, yurt ici her yone 600 SMS, 1 GB cepten internet ve BIMcell’lilerle SINIRSIZ konusma hakkinizi DD/MM/YYYY saat HH:MI’a kadar kullanabilirsiniz.
 NonNT_Kayit_Mesaji2=
-NonNT_Fiyat=30
+NonNT_Fiyat=15
 
-KisaNumara=5555
-SMS_Keyword=DOLU 3GB
-SMS_Keyword_NonNt=DOLU 3 GB
+KisaNumara=4551
+SMS_Keyword=DOST1GB
+SMS_Keyword_NonNt=DOST 1GB
 Aboneler_Once_Temizlensin_mi=evet
 
 #bos birakilirsa kontrol edilmez
-yenilemeli_ise_NonNT_servis_ismi=PP_Dolu3GBNonNTService_01382
+yenilemeli_ise_NonNT_servis_ismi=
 
 #Yukle Kazan gibi kampanyalarda OTF oldugundan kayit ve iptal bonustan kontrol edilir:
 Paket_Kayit_Bonusu=
@@ -36,15 +37,15 @@ Yenilemeli_ise_Bakiyesiz_Alim_var_mi=evet
 #TC ID doldurulursa TCli akis secilir:
 TCID=
 #kalanAkisi yoksa SMSini bos birakiniz, boylece test edilmeyecektir
-kalanSMS=DOLU 3GB Paketi kapsaminda DD/MM/YYYY tarihine kadar kullanabileceginiz yurt ici her yone 750 dk, her yone 1000 SMS ve 3072 MB cepten internet kullanim hakkiniz bulunmaktadir.
-kalanSMS_paket_yoksa=Degerli musterimiz, mobil hattiniza tanimli DOLU 3GB Paketi bulunmamaktadir.
-kalanSMS_paket_bitmis_ise=DOLU 3GB Paketi kapsaminda yurt ici her yone dakika, her yone SMS ve cepten internet kullanim hakkiniz bitmistir.
+kalanSMS=BIMcell Dost1GB Paketinizde xx.xx.xxxx saat HH:MI’a kadar kullanabileceginiz her yone 600 DK’dan 600 DK 0 SN, her yone 600 SMS’ten 600 SMS, 1 GB’tan 1024 MB ve BIMcell’lilerle SINIRSIZ konusma hakkiniz bulunmaktadir.
+kalanSMS_paket_yoksa=Degerli musterimiz, hattiniza tanimli BIMcell Dost1GB Paketiniz bulunmamaktadir. Detayli bilgi: www.bimcell.com.tr
+kalanSMS_paket_bitmis_ise=BIMcell Dost1GB Paketinizde bulunan yurt ici her yone 600 DK konusma, yurt ici her yöne 600SMS ve 1 GB internet haklariniz tukenmistir. DD/MM/YYYY'ye kadar BIMcell’lilerle sinirsiz konusmaya devam edebilirsiniz.
 
 TempMsisdn=5050000901
-YasakTarife1=130
-YasakTarife1SMSi=Talep ettiginiz paketten BIMCELL kullanicilari faydalanamamaktadir.Cok avantajli teklifler icin web sitenizi ziyaret edebilirsiniz.
-YasakTarife2=140
-YasakTarife2SMSi=Bu paket mevcut tarifeniz ile beraber kullanilamamaktadir. Paketten yararlanabileceginiz tarifelerin bilgisi icin web sitemizi ziyaret edebilirsiniz.
+YasakTarife1=19
+YasakTarife1SMSi=Degerli musterimiz, paketimizden sadece faturasiz BIMcell kullanicilari faydalanabilir. Size uygun tekliflerimiz icin www.bimcell.com.tr yi ziyaret edebilirsiniz.
+YasakTarife2=149
+YasakTarife2SMSi=Degerli musterimiz, paketimizden sadece faturasiz BIMcell kullanicilari faydalanabilir. Size uygun tekliflerimiz icin www.bimcell.com.tr yi ziyaret edebilirsiniz.
 YasakTarife3=170
 YasakTarife3SMSi=Talep ettiginiz paketten POCELL kullanicilari faydalanamamaktadir.Cok avantajli teklifler icin web sitenizi ziyaret edebilirsiniz.
 YasakTarife4=150
@@ -52,17 +53,17 @@ YasakTarife4SMSi=Talep ettiginiz paketten PTTCELL kullanicilari faydalanamamakta
 
 #iptal akisi yoksa iptalSMSi bos birakiniz
 
-iptalSMS=Degerli musterimiz, mobil hattiniza tanimli DOLU 3GB Paketiniz iptal edilmistir ve otomatik yenilenmeyecektir. Kalan haklariniz varsa DD/MM/YYYY tarihine kadar kullanabilirsiniz.
-iptal_edilecek_paketi_yoksa_SMSi=Degerli musterimiz, mobil hattiniza tanimli DOLU 3GB Paketi bulunmamaktadir.
+iptalSMS=Degerli musterimiz, BIMcell Dost1GB Paketiniz iptal edilmistir, otomatik olarak yenilenmeyecektir. Kalan haklariniz varsa DD/MM/YYYY tarihine kadar kullanabilirsiniz.
+iptal_edilecek_paketi_yoksa_SMSi=Degerli musterimiz, hattiniza tanimli BIMcell Dost1GB Paket bulunmamaktadir. Tesekkur ederiz.
 
 #Parasi 0 TL iken alma testi. Paket ucretsizse kayitSMSinin aynisini yapistirabilirsiniz. 0 TL bakiyeli temiz abone olmali. Test etmeden atlamak icin degiskenleri bos birakabilirsiniz.
 NT_yetersizBakiye_Msisdn=5050000877
-NT_yetersizBakiye_KayitSMS=Degerli musterimiz, hattinizda yeterli TL bulunmadigi icin DOLU 3GB Paketi tanimlanamadi. 29 gun icinde hattinizda en az 27 TL bulundugunda paketiniz otomatik olarak tanimlanacaktir. Iptal etmek icin IPTAL DOLU3GB yazip 5555'e gonderin.
+NT_yetersizBakiye_KayitSMS=Degerli musterimiz, hattinizda yeterli TL bulunmadigi icin BİMcell Dost1GB Paketiniz tanimlanamadi. 29 gun icinde hattinizda en az 15 TL bulundugunda paketiniz otomatik tanimlanacaktir. Iptal etmek icin IPTAL DOST1GB yazip 4551'e gonderebilirsiniz.
 NONNT_yetersizBakiye_Msisdn=5050000912
-NONNT_yetersizBakiye_KayitSMS=Degerli musterimiz, hattinizda yeterli TL bulunmadigi icin DOLU 3GB Paketi tanimlanamadi. 29 gun icinde hattinizda en az 30 TL bulundugunda paketiniz otomatik olarak tanimlanacaktir. Iptal etmek icin IPTAL DOLU3GB yazip 5555'e gonderin.
+NONNT_yetersizBakiye_KayitSMS=Degerli musterimiz, hattinizda yeterli TL bulunmadigi icin BİMcell Dost1GB Paketiniz tanimlanamadi. 29 gun icinde hattinizda en az 15 TL bulundugunda paketiniz otomatik tanimlanacaktir. Iptal etmek icin IPTAL DOST1GB yazip 4551'e gonderebilirsiniz.
 
 Faturali_No=5078815441
-Faturali_SMSi=Degerli musterimiz, paketimizden sadece bireysel faturasiz hatlar faydalanabilir. Cok avantajli tekliflerimiz icin web sitemizi ziyaret edebilirsiniz.
+Faturali_SMSi=Degerli musterimiz, paketimizden sadece faturasiz BIMcell kullanicilari faydalanabilir. Size uygun tekliflerimiz icin www.bimcell.com.tr yi ziyaret edebilirsiniz.
 
 Hotline_No=5050000909
 Hotline_SMSi=Degerli musterimiz, hattiniz aktif degildir. TL yukleyerek hattinizi aktif duruma getirdikten sonra paket kayit talebinizi tekrar iletebilirsiniz.
@@ -74,20 +75,20 @@ First_Call_SMSi=Degerli musterimiz, paketi satin alabilmek icin oncelikle ucretl
 Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=hayir
 Tarifesi_uygun_bir_msisdn=5050000911
 
-user=07111
-sifre=111
+user=071428
+sifre=Kafein68
 url=http://10.248.68.185:7011/aveamerkez2/salePackages.vas
 
 mrte1_IP=10.248.68.127
 mrte1_Sifre=mrte1123
 SMS_kanali_promo_mu_ir_mi=promo
-Sleep_seconds_after_sending_SMS_before_checking_logs=20
+Sleep_seconds_after_sending_SMS_before_checking_logs=15
 #Firefox Driver internetten indirilebilir: https://github.com/mozilla/geckodriver/releases   örnegin: geckodriver-v0.11.1-win32.zip. Firefoxunuz da cok eski olmamali
 Firefox_Driver_Path=C:\\geckodriver.exe
 
 #bagli sistem calismadiginda alternatif yol kullanilabilir:
 SMS_Gonderimi_icin_ikinci_yolu_kullan=hayir
 
-BPM_PRE_PACKAGE_KULLAN=evet
-KW=HESAPLI300
-TP=211901
+BPM_PRE_PACKAGE_KULLAN=hayir
+KW=DOST1GB
+TP=246042
