@@ -68,7 +68,7 @@ public class sendSMSbyBPM_Pre_Package_WS {
 
                 System.out.println(resp);
 
-                assertTrue("BPM Patlak. Test Support'la gorusunuz.", resp.contains("PrepaidPackageAssignmentProcessResponse"));
+                assertTrue("BPM Patlak. Calisma/kesinti maili/rezervasyonu yoksa Test Support'la gorusunuz.", !(resp.toLowerCase().contains("exception"))&&resp.contains("PrepaidPackageAssignmentProcessResponse"));
 
             } else {
                 System.err.println("No Response from BPM");

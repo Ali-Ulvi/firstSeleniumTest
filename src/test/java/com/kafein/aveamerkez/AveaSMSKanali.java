@@ -41,7 +41,7 @@ import static org.junit.Assume.assumeTrue;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AveaSMSKanali {
-    static Sil2 sil, silNonNT, silNTFLAGAbone;
+    static Sil2 sil, silNonNT, silNTFLAGAbone,silYetersizbakiyeAbone,silNonNtYetersizbakiyeAbone;
     // static WebDriver driver;
     static SendSms sms = SendSms.sendSms;
     static Config c = Config.config;
@@ -55,6 +55,10 @@ public class AveaSMSKanali {
         silNonNT.start();
         silNTFLAGAbone = new Sil2(c.Tarifesi_uygun_bir_msisdn);
         silNTFLAGAbone.start();
+        silYetersizbakiyeAbone = new Sil2(c.yetersizBakiyemsisdn);
+        silYetersizbakiyeAbone.start();
+        silNonNtYetersizbakiyeAbone = new Sil2(c.NonNtyetersizBakiyeMsisdn);
+        silNonNtYetersizbakiyeAbone.start();
         String strDirectoy = "C:\\Logs";
         try {
             boolean success = (new File(strDirectoy)).mkdir();
@@ -92,6 +96,8 @@ public class AveaSMSKanali {
 
     @Test
     public void Test01_KayitSMS() throws Exception {
+        mrteSSH ssh = new mrteSSH(c.msisdn);
+        ssh.setMoney(new BigDecimal(c.NT_Fiyat).toString());
         BigDecimal money = getMoney(c.msisdn);
 
         sil.join(4 * 60 * 1000);
@@ -182,7 +188,7 @@ public class AveaSMSKanali {
         List<String> smsler = log.getPromoLog(c.msisdn, "Test02_KalanSMS");
         Iterator<String> iterator = smsler.iterator();
         String gidenSms1 = iterator.next();
-        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), gidenSms1);
 
         if (iterator.hasNext()) {
             String gidenSms2 = iterator.next();
@@ -308,6 +314,8 @@ public class AveaSMSKanali {
     public void Test05_Pakete_birden_fazla_kez_KayitSMS() throws Exception {
         //ilk kayit
         Test01_KayitSMS();
+        mrteSSH ssh = new mrteSSH(c.msisdn);
+        ssh.setMoney(new BigDecimal(c.NT_Fiyat).add(BigDecimal.ONE).toString());
         int bnsCount = getBonusCount(c.msisdn);
         if (c.Paketi_zaten_var_SMSi.isEmpty()) {
             BigDecimal money = getMoney(c.msisdn);
@@ -459,6 +467,9 @@ public class AveaSMSKanali {
 
     @Test
     public void Test06_Yetersiz_BakiyeKayitSMS() throws Exception {
+        mrteSSH ssh = new mrteSSH(c.yetersizBakiyemsisdn);
+        ssh.setMoney(new BigDecimal(c.NT_Fiyat).subtract(new BigDecimal("0.000001")).toString());
+        silYetersizbakiyeAbone.join(4 * 60 * 1000);
         BigDecimal money = getMoney(c.yetersizBakiyemsisdn);
 
         Log.log.startAsbLog(c.yetersizBakiyemsisdn);
@@ -538,6 +549,10 @@ public class AveaSMSKanali {
 
     @Test
     public void Test07_NonNT_KayitSMS() throws Exception {
+        assumeTrue(!c.NonNT_msisdn.isEmpty());
+        mrteSSH ssh = new mrteSSH(c.NonNT_msisdn);
+        ssh.setMoney(new BigDecimal(c.NonNT_Fiyat).toString());
+
         BigDecimal money = getMoney(c.NonNT_msisdn);
 
         silNonNT.join(4 * 60 * 1000);
@@ -619,13 +634,14 @@ public class AveaSMSKanali {
     @Test
     public void Test08_NonNT_KalanSMS() throws Exception {
         assumeFalse(c.BPM.equalsIgnoreCase("evet"));
+        assumeTrue(!c.NonNT_msisdn.isEmpty());
         assumeTrue(!c.kalanSMS.isEmpty());
         log.startPromoLog(c.NonNT_msisdn);
         sms.sendSms(c.NonNT_msisdn, c.kn, "KALAN " + c.kwNonNt);
         List<String> smsler = log.getPromoLog(c.NonNT_msisdn, "Test08_NonNT_KalanSMS");
         Iterator<String> iterator = smsler.iterator();
         String gidenSms1 = iterator.next();
-        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
 
         if (iterator.hasNext()) {
             String gidenSms2 = iterator.next();
@@ -639,7 +655,12 @@ public class AveaSMSKanali {
 
     @Test
     public void Test08_v1_NonNt_Pakete_birden_fazla_kez_KayitSMS() throws Exception {
+        assumeTrue(!c.NonNT_msisdn.isEmpty());
+
         //test7de almisti zaten
+        mrteSSH ssh = new mrteSSH(c.NonNT_msisdn);
+        ssh.setMoney(new BigDecimal(c.NonNT_Fiyat).add(new BigDecimal("0.000001")).toString());
+
         int bnsCount = getBonusCount(c.NonNT_msisdn);
 
         checkService(c.NonNT_msisdn, c.NonNT_servis, "ACTIVE/STD/STD");
@@ -799,6 +820,7 @@ public class AveaSMSKanali {
 
     @Test
     public void Test08_v2_NonNt_iptalSMS() throws Exception {
+        assumeTrue(!c.NonNT_msisdn.isEmpty());
 
         assumeTrue(!c.iptalSMS.isEmpty());
         Log.log.startAsbLog(c.NonNT_msisdn);
@@ -840,6 +862,12 @@ public class AveaSMSKanali {
 
     @Test
     public void Test09_NonNT_Yetersiz_BakiyeKayitSMS() throws Exception {
+        assumeTrue(!c.NonNT_msisdn.isEmpty());
+
+        mrteSSH ssh = new mrteSSH(c.NonNtyetersizBakiyeMsisdn);
+        ssh.setMoney(new BigDecimal(c.NonNT_Fiyat).subtract(new BigDecimal("0.000001")).toString());
+
+        silNonNtYetersizbakiyeAbone.join(4 * 60 * 1000);
         BigDecimal money = getMoney(c.NonNtyetersizBakiyeMsisdn);
 
         Log.log.startAsbLog(c.NonNtyetersizBakiyeMsisdn);
