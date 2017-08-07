@@ -75,8 +75,8 @@ First_Call_SMSi=Degerli musterimiz, paketi satin alabilmek icin oncelikle ucretl
 Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi=hayir
 Tarifesi_uygun_bir_msisdn=5050000911
 
-user=071428
-sifre=Kafein68
+user=071111
+sifre=11111
 url=http://10.248.68.185:7011/aveamerkez2/salePackages.vas
 
 mrte1_IP=10.248.68.127
