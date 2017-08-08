@@ -255,11 +255,11 @@ public class AveaSMSKanali {
         String gidenSms1 = iterator.next();
         if (!c.Paketi_zaten_var_SMSi.isEmpty()) { //Paket 1 kere alinabilen bir paketse Bir onceki test casede 1 kere alabildi demekki
 
-            Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+            Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), gidenSms1);
         } else {
             //2 kere alinabilen paket. bu noktada 2 kere alinmis oluyor. 5 nolu test nedeniyle. Gercek miktarlar sorgulandigi test edilmis oluyor
             String KalanSMS_2KereAlmis = multiplyBonusAmountsBy2(c.kalanSMS);
-            Assert.assertEquals(KalanSMS_2KereAlmis.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+            Assert.assertEquals(KalanSMS_2KereAlmis.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), gidenSms1);
         }
         if (iterator.hasNext()) {
             String gidenSms2 = iterator.next();
@@ -641,7 +641,7 @@ public class AveaSMSKanali {
         List<String> smsler = log.getPromoLog(c.NonNT_msisdn, "Test08_NonNT_KalanSMS");
         Iterator<String> iterator = smsler.iterator();
         String gidenSms1 = iterator.next();
-        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()), gidenSms1);
+        Assert.assertEquals(c.kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), gidenSms1);
 
         if (iterator.hasNext()) {
             String gidenSms2 = iterator.next();

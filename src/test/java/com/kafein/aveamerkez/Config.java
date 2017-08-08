@@ -17,7 +17,7 @@ public class Config {
      String  kayitSms, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
     public String NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
     public String kalanSMS_paket_bitmis_ise,TempMsisdn,ip,mrte1Pw,temizle,gecko,kanal,sleep,kayitSms2,NonNT_Kayit_Mesaji2,kwNonNt,kw,kn,iptal_edilecek_paketi_yoksa_SMSi,Paketi_zaten_var_SMSi,kalanSMS_paket_yoksa;
-    public String BPM,KW,TP,SMS_Gonderimi_icin_ikinci_yolu_kullan,Paket_Kayit_Bonusu,Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi,Tarifesi_uygun_bir_msisdn,First_Call_SMSi,First_Calldaki_Abone,Hotline_No,Hotline_SMS,Faturali_SMSi,Faturali_No,YasakTarife1,YasakTarife2,YasakTarife3,YasakTarife4,YasakTarife1SMSi,YasakTarife2SMSi,YasakTarife3SMSi,YasakTarife4SMSi;
+    public String sinirsiz,BPM,KW,TP,SMS_Gonderimi_icin_ikinci_yolu_kullan,Paket_Kayit_Bonusu,Abone_NonNT_ama_NT_Flagi_var_testi_yapilsin_mi,Tarifesi_uygun_bir_msisdn,First_Call_SMSi,First_Calldaki_Abone,Hotline_No,Hotline_SMS,Faturali_SMSi,Faturali_No,YasakTarife1,YasakTarife2,YasakTarife3,YasakTarife4,YasakTarife1SMSi,YasakTarife2SMSi,YasakTarife3SMSi,YasakTarife4SMSi;
     public static Config config=new Config();//singleton pattern
     public String addDay() {
         Calendar today = Calendar.getInstance();
@@ -39,7 +39,7 @@ public class Config {
         try {
 
             try {
-                FileReader reader = new FileReader("Config.txt");
+                FileReader reader = new FileReader("MyConfig.txt");
                 BufferedReader bufferedReader = new BufferedReader(reader);
 
                 String line;
@@ -66,6 +66,7 @@ public class Config {
 
             // get the property value and print it out
             day = prop.getProperty("paket_kac_gunluk");
+            sinirsiz = prop.getProperty("sinirsiz_bonus");
             kayitSms = prop.getProperty("NT_Kayit_Mesaji");
             kayitSms2 = prop.getProperty("NT_Kayit_Mesaji2");
             Paketi_zaten_var_SMSi = prop.getProperty("Paketi_zaten_var_SMSi");

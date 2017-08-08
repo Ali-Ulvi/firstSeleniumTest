@@ -15,12 +15,7 @@ import org.junit.*;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.*;
 
 import java.io.*;
@@ -33,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
@@ -41,12 +37,12 @@ import static org.junit.Assume.assumeTrue;
  * Created by Ali Ulvi Talipoglu 071428 via Kafein on 26.10.2016.
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AveaMerkez {
+public class AveaMerkez  {
     static String user, pw, url, pack, kayitSms, gecko, tur, msisdn, day, iptalSMS, kalanSMS, yetersizBakiyemsisdn, yetersizBakiyeKayitSMS; //Config.txt icin degiskenler
     static String master, NonNtyetersizBakiyeKayitSMS, NonNtyetersizBakiyeMsisdn, NonNT_msisdn, NonNT_Kayit_Mesaji, TCID,NT_Fiyat,NonNT_Fiyat,NT_servis,NonNT_servis,bakiyesizAlim;
     static String ip,mrte1Pw,temizle,NonNT_Kayit_Mesaji2,kayitSms2;
     static WebDriver driver;
-    static Sil sil,silNonNT;
+    static Sil sil,silNonNT,silYetersizBakiyemsisdn,silNonNtyetersizBakiyeMsisdn;
 
 
     @Rule
@@ -71,7 +67,7 @@ public class AveaMerkez {
 
         try {
             try {
-                FileReader reader = new FileReader("Config.txt");
+                FileReader reader = new FileReader("MyConfig.txt");
                 BufferedReader bufferedReader = new BufferedReader(reader);
 
                 String line;
@@ -148,13 +144,18 @@ public class AveaMerkez {
 
 
     }
-    
+
     @BeforeClass
     public static void eraser(){
         sil=new Sil(msisdn);
+        silYetersizBakiyemsisdn=new Sil(yetersizBakiyemsisdn);
+        silNonNtyetersizBakiyeMsisdn=new Sil(NonNtyetersizBakiyeMsisdn);
         silNonNT=new Sil(NonNT_msisdn);
-                sil.start();
-                silNonNT.start();
+        sil.start();
+        silNonNT.start();
+        silYetersizBakiyemsisdn.start();
+        silNonNtyetersizBakiyeMsisdn.start();
+
     }
     @BeforeClass
     public static void drive() throws MalformedURLException {
@@ -178,7 +179,7 @@ public class AveaMerkez {
     @AfterClass
     public static void clean() throws IOException {
 
-       // driver.close();
+        // driver.close();
         //driver.quit();
 
         try {
@@ -218,7 +219,7 @@ public class AveaMerkez {
         guncelle.click();
         //waitForJStoLoad();
         WebDriverWait wait = new WebDriverWait(driver, 89,100);
-       // wait.until(new page_loaded("#searchmsisdn", 1));
+        // wait.until(new page_loaded("#searchmsisdn", 1));
         wait.until(ExpectedConditions.stalenessOf(guncelle));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[value='Paketleri Guncelle']")));
         sil.join(4*60*1000);
@@ -226,7 +227,8 @@ public class AveaMerkez {
         //try {
 
         WebElement paketListesi = null;
-
+        mrteSSH ssh = new mrteSSH(msisdn);
+        ssh.setMoney(new BigDecimal(NT_Fiyat).toString());
         txtBox.sendKeys(msisdn);
         Thread.sleep(1000);
 
@@ -240,38 +242,33 @@ public class AveaMerkez {
             Thread.sleep(2000);
         }
         BigDecimal money=getMoney(msisdn);
-        Select types = new Select(fluentWait(By.cssSelector("select#types")));
-        if (tur.compareToIgnoreCase("ses") == 0) {
 
-            types.selectByVisibleText("Ses Paketleri");
+        if (driver.findElements(By.className("clsInputLabel")).size() > 0 && fluentWait(By.className("clsInputLabel")).getText().contains("Hata")) {
+            tamam.click();
+        } //COPY START
+        if (tur.compareToIgnoreCase("ses") == 0) {
+            paketListesi = fluentWait(By.cssSelector("select.inputBox2"));
         } else if (tur.compareToIgnoreCase("karma") == 0) {
-            types.selectByVisibleText("Karma Paketler");
+            paketListesi = fluentWait(By.cssSelector("select#mix"));
 
         } else if (tur.compareToIgnoreCase("data") == 0) {
-            types.selectByVisibleText("Data Paketleri");
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr[3]/td[text()=\"Data Paketleri\"]/following-sibling::td/div/select"));
 
         } else {
-            types.selectByVisibleText(tur);
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr/td[text()='" + tur + "']/following-sibling::td/div/select"));
+
         }
-
-        // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
-        //Thread.sleep(2000);
-        Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
-        System.out.println("paket list size before" + ses1.getOptions().size());
-
-        //WebDriverWait wait = new WebDriverWait(driver, 66);
-
-        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
-        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
-
-        paketListesi = fluentWait(By.cssSelector("#populated"));
-
+        WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
+        Thread.sleep(2000);
         Select ses = new Select(paketListesi);
-        Thread.sleep(1700);
-        System.out.println("paket list size after" + ses.getOptions().size());
+        for (WebElement temp : ses.getOptions()){
+            if (temp.getText().startsWith(pack+ " (")){ //developer changing texts
+                ses.selectByVisibleText(temp.getText());
+                break;
+            }
 
-
-        ses.selectByVisibleText(pack);
+        }
+        //COPY STOP
         Thread.sleep(3000);
         try {
 
@@ -308,7 +305,7 @@ public class AveaMerkez {
         Assert.assertEquals(NT_Fiyat+" TL dusmesi gerekirken "+fiyat+" TL dustu. Servis veya fiyati yanlis..",Double.parseDouble(new BigDecimal(NT_Fiyat).toString()) ,Double.parseDouble(fiyat.toString()),0);
 
         String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
-        Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
+        //Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         checkService(msisdn,NT_servis,"ACTIVE/STD/STD");
         String gun = addDay();
@@ -363,8 +360,8 @@ public class AveaMerkez {
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
         String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
-       captureScreenshot("test2_kalan_SUCCESS");
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), sms);
+        captureScreenshot("test2_kalan_SUCCESS");
         driver.close();
         driver.switchTo().window(master);  // switch back to parent window
         System.out.println(sms+"\n test2 paket kalan bitti");
@@ -447,6 +444,8 @@ public class AveaMerkez {
 
         WebElement paketListesi;
         txtBox.clear();
+        mrteSSH ssh = new mrteSSH(yetersizBakiyemsisdn);
+        ssh.setMoney(new BigDecimal(NT_Fiyat).subtract(new BigDecimal("0.000001")).toString());
         txtBox.sendKeys(yetersizBakiyemsisdn);
         Thread.sleep(2000);
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
@@ -456,40 +455,30 @@ public class AveaMerkez {
         Thread.sleep(2000);
         fluentWait(By.cssSelector("#loader[style='display: none;']"));
 
-        Select types = new Select(fluentWait(By.cssSelector("select#types")));
+        if (driver.findElements(By.className("clsInputLabel")).size() > 0 && fluentWait(By.className("clsInputLabel")).getText().contains("Hata")) {
+            tamam.click();
+        }
         if (tur.compareToIgnoreCase("ses") == 0) {
-
-            types.selectByVisibleText("Ses Paketleri");
+            paketListesi = fluentWait(By.cssSelector("select.inputBox2"));
         } else if (tur.compareToIgnoreCase("karma") == 0) {
-            types.selectByVisibleText("Karma Paketler");
+            paketListesi = fluentWait(By.cssSelector("select#mix"));
 
         } else if (tur.compareToIgnoreCase("data") == 0) {
-            types.selectByVisibleText("Data Paketleri");
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr[3]/td[text()=\"Data Paketleri\"]/following-sibling::td/div/select"));
 
         } else {
-            types.selectByVisibleText(tur);
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr/td[text()='" + tur + "']/following-sibling::td/div/select"));
+
         }
+        WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
         Thread.sleep(2000);
-        WebDriverWait wait = new WebDriverWait(driver, 66);
-
-
-        // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
-        //Thread.sleep(2000);
-
-
-        Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
-        System.out.println("paket list size before" + ses1.getOptions().size());
-        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
-        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
-
-        paketListesi = fluentWait(By.cssSelector("#populated"));
-
         Select ses = new Select(paketListesi);
-        Thread.sleep(1500);
-        System.out.println("paket list size after" + ses.getOptions().size());
-
-
-        ses.selectByVisibleText(pack);
+        for (WebElement temp : ses.getOptions()) {
+            if (temp.getText().startsWith(pack + " (")) { //developer changing texts
+                ses.selectByVisibleText(temp.getText());
+                break;
+            }
+        }
         Thread.sleep(3000);
         try {
 
@@ -507,11 +496,13 @@ public class AveaMerkez {
             //System.err.println("TC id girme hatasi " + e.getLocalizedMessage() + e.getMessage());
             //e.printStackTrace();
         }
+        silYetersizBakiyemsisdn.join(4*60*1000);
         WebElement aktifBtn = driver.findElement(By.cssSelector("input[value='Aktif Et']"));
         Thread.sleep(2000);
         aktifBtn.click();
         Thread.sleep(2000);
         driver.switchTo().alert().accept();
+        Thread.sleep(5000);
         fluentWait(By.className("clsInputLabel"));
         Thread.sleep(2000);
         //List<WebElement> messages = driver.findElements(By.className("clsInputLabel"));
@@ -523,7 +514,7 @@ public class AveaMerkez {
         //  Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         if (bakiyesizAlim.equalsIgnoreCase("evet"))
-        checkService(yetersizBakiyemsisdn,NT_servis,"PASSIVE/STD/FOLLOW");
+            checkService(yetersizBakiyemsisdn,NT_servis,"PASSIVE/STD/FOLLOW");
         String gun = addDay();
         yetersizBakiyeKayitSMS = yetersizBakiyeKayitSMS.replaceAll("<BONUS_END_DATE>", gun);
         yetersizBakiyeKayitSMS = yetersizBakiyeKayitSMS.replace("{sysdate+30}", gun.replace(".", "/") + " saat 23:59'a");
@@ -537,6 +528,7 @@ public class AveaMerkez {
 
         // Now create matcher object.
         Matcher m = r.matcher(message2);
+        System.out.println("actual message2:" + message2);
         System.out.println("Beklenen regex Patterni:" + pattern);
 
         Assert.assertTrue("yetersizBakiyeKayit Mesaji yanlis..:" + message2, m.matches());
@@ -558,7 +550,8 @@ public class AveaMerkez {
     public void test5_NonNT_paketAlim() throws Exception {
 
         assumeTrue(!NonNT_Kayit_Mesaji.isEmpty() && !NonNT_msisdn.isEmpty());
-
+        mrteSSH ssh = new mrteSSH(NonNT_msisdn);
+        ssh.setMoney(new BigDecimal(NonNT_Fiyat).toString());
         //  driver = new RemoteWebDriver(new URL("http://127.0.0.1:9515"), DesiredCapabilities.chrome());
 
         //Step 2- Navigation: Open a website
@@ -605,35 +598,34 @@ public class AveaMerkez {
             tamam.click();
             Thread.sleep(2000);
         }
-        Select types = new Select(fluentWait(By.cssSelector("select#types")));
-        if (tur.compareToIgnoreCase("ses") == 0) {
+        fluentWait(By.cssSelector("#loader[style='']"));
+        Thread.sleep(2000);
+        fluentWait(By.cssSelector("#loader[style='display: none;']"));
 
-            types.selectByVisibleText("Ses Paketleri");
+        if (driver.findElements(By.className("clsInputLabel")).size() > 0 && fluentWait(By.className("clsInputLabel")).getText().contains("Hata")) {
+            tamam.click();
+        }
+        if (tur.compareToIgnoreCase("ses") == 0) {
+            paketListesi = fluentWait(By.cssSelector("select.inputBox2"));
         } else if (tur.compareToIgnoreCase("karma") == 0) {
-            types.selectByVisibleText("Karma Paketler");
+            paketListesi = fluentWait(By.cssSelector("select#mix"));
 
         } else if (tur.compareToIgnoreCase("data") == 0) {
-            types.selectByVisibleText("Data Paketleri");
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr[3]/td[text()=\"Data Paketleri\"]/following-sibling::td/div/select"));
 
         } else {
-            types.selectByVisibleText(tur);
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr/td[text()='" + tur + "']/following-sibling::td/div/select"));
+
         }
-
-
-        // WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
-        //Thread.sleep(2000);
-
-
-        Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
-        System.out.println("paket list size before" + ses1.getOptions().size());
-         wait = new WebDriverWait(driver, 66);
-        WebDriverWait wait2 = new WebDriverWait(driver, 90,3000);
-        wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size()-1));
-        paketListesi = fluentWait(By.cssSelector("#populated"));
+        WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
+        Thread.sleep(2000);
         Select ses = new Select(paketListesi);
-        Thread.sleep(1500);
-        System.out.println("paket list size after" + ses.getOptions().size());
-        ses.selectByVisibleText(pack);
+        for (WebElement temp : ses.getOptions()) {
+            if (temp.getText().startsWith(pack + " (")) { //developer changing texts
+                ses.selectByVisibleText(temp.getText());
+                break;
+            }
+        }
         Thread.sleep(3000);
         try {
 
@@ -670,7 +662,7 @@ public class AveaMerkez {
 
         Assert.assertEquals(NonNT_Fiyat+" TL dusmesi gerekirken "+fiyat+" TL dustu. Servis veya fiyati yanlis..",Double.parseDouble(new BigDecimal(NonNT_Fiyat).toString()) ,Double.parseDouble(fiyat.toString()),0);
         String message1 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[1]/td/font")).getText();
-        Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
+      //  Assert.assertTrue("Kayit Mesaji yanlis:" + message1, message1.contentEquals("  * Paket satışı başarıyla yapıldı."));
         String message2 = driver.findElement(By.xpath(".//*[@id='leftPane']/table/tbody/tr[2]/td/font")).getText();
         checkService(NonNT_msisdn,NonNT_servis,"ACTIVE/STD/STD");
 
@@ -708,7 +700,7 @@ public class AveaMerkez {
     @Test
     public void test6_NonNT_kalan() throws Exception {
 
-        assumeTrue(!kalanSMS.isEmpty());
+        assumeTrue(!kalanSMS.isEmpty()&& !NonNT_msisdn.isEmpty());
         fluentWait(By.xpath(".//td[text()=\"" + pack + "\"]/preceding-sibling::td/input")).click();
         master = driver.getWindowHandle();
         fluentWait(By.xpath(".//td[text()=\"" + pack + "\"]/following-sibling::td/input")).click();
@@ -725,7 +717,7 @@ public class AveaMerkez {
         driver.switchTo().window(newAdwinID);
         //System.out.println(fluentWait(By.cssSelector("body > table > tbody > tr:nth-child(3) > td:nth-child(1) > b")).getText());
         String sms=fluentWait(By.xpath("/html/body/table/tbody/tr[3]/td[3]/kalan")).getText();
-        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|dd/mm/yyyy|dd.mm.yyyy", addDay()), sms);
+        Assert.assertEquals(kalanSMS.replaceAll("DD/MM/YYYY|xx\\.xx\\.xxxx|dd/mm/yyyy|dd.mm.yyyy", addDay()).replace("HH:MI","23:59"), sms);
         captureScreenshot("test6_NonNT_kalan_SUCCESS");
         driver.switchTo().window(master);  // switch back to parent window
         System.out.println(sms+"\n test6 NonNt paket kalan bitti");
@@ -735,7 +727,7 @@ public class AveaMerkez {
     @Test
     public void test7_NonNT_iptal() throws Exception {
 
-        assumeTrue(!iptalSMS.isEmpty());
+        assumeTrue(!iptalSMS.isEmpty()&& !NonNT_msisdn.isEmpty());
         Set<String> windowId = driver.getWindowHandles();    // get  window id of current window
         Iterator<String> itererator = windowId.iterator();
         String mainWinID = itererator.next();
@@ -777,7 +769,7 @@ public class AveaMerkez {
     @Test
     public void test8_NonNT_yetersizBakiye_paketAlim() throws Exception {
 
-        assumeTrue(!NonNtyetersizBakiyeKayitSMS.isEmpty() && !NonNtyetersizBakiyeMsisdn.isEmpty());
+        assumeTrue(!NonNtyetersizBakiyeKayitSMS.isEmpty() && !NonNtyetersizBakiyeMsisdn.isEmpty() && !NonNT_msisdn.isEmpty());
         try {
             driver.findElement(By.name("userName")).sendKeys(user);
             driver.findElement(By.name("password")).sendKeys(pw);
@@ -806,50 +798,43 @@ public class AveaMerkez {
         WebElement paketListesi = null;
         txtBox.clear();
         txtBox.sendKeys(NonNtyetersizBakiyeMsisdn);
+        mrteSSH ssh = new mrteSSH(NonNtyetersizBakiyeMsisdn);
+        ssh.setMoney(new BigDecimal(NonNT_Fiyat).subtract(new BigDecimal("0.000001")).toString());
         Thread.sleep(2000);
         WebElement tamam = driver.findElement(By.cssSelector("input[value=Tamam]"));
         tamam.click();
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         //loading screen shown (waiting)
         fluentWait(By.cssSelector("#loader[style='']"));
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         //loading screen closed (waiting)
         fluentWait(By.cssSelector("#loader[style='display: none;']"));
-        Thread.sleep(2000);
-        Select types = new Select(fluentWait(By.cssSelector("select#types")));
-        if (tur.compareToIgnoreCase("ses") == 0) {
 
-            types.selectByVisibleText("Ses Paketleri");
+
+        if (driver.findElements(By.className("clsInputLabel")).size() > 0 && fluentWait(By.className("clsInputLabel")).getText().contains("Hata")) {
+            tamam.click();
+        }
+        if (tur.compareToIgnoreCase("ses") == 0) {
+            paketListesi = fluentWait(By.cssSelector("select.inputBox2"));
         } else if (tur.compareToIgnoreCase("karma") == 0) {
-            types.selectByVisibleText("Karma Paketler");
+            paketListesi = fluentWait(By.cssSelector("select#mix"));
 
         } else if (tur.compareToIgnoreCase("data") == 0) {
-            types.selectByVisibleText("Data Paketleri");
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr[3]/td[text()=\"Data Paketleri\"]/following-sibling::td/div/select"));
 
         } else {
-            types.selectByVisibleText(tur);
+            paketListesi = fluentWait(By.xpath(".//*[@id='salePackageId']/table/tbody/tr/td[text()='" + tur + "']/following-sibling::td/div/select"));
+
         }
+        WebElement pktName = fluentWait(By.cssSelector("option[value='newOnnetPack.vas']"));//just to wait page load
         Thread.sleep(2000);
-        WebDriverWait wait = new WebDriverWait(driver, 86);
-        Select ses1 = new Select(fluentWait(By.cssSelector("#populated")));
-        System.out.println("paket list size before" + ses1.getOptions().size());
-        WebDriverWait wait2 = new WebDriverWait(driver, 40,2000);
-        try {
-            wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size() - 1));
-        }
-        catch (Exception e){
-            //aveamerkez or connection errors may have happened. trying again
-              wait2 = new WebDriverWait(driver, 80,4000);
-            wait2.until(new ElementPopulatedByFilter("#populated", ses1.getOptions().size() - 1));
-        }
-        paketListesi = fluentWait(By.cssSelector("#populated"));
-
         Select ses = new Select(paketListesi);
-        Thread.sleep(1500);
-        System.out.println("paket list size after" + ses.getOptions().size());
-
-
-        ses.selectByVisibleText(pack);
+        for (WebElement temp : ses.getOptions()) {
+            if (temp.getText().startsWith(pack + " (")) { //developer changing texts
+                ses.selectByVisibleText(temp.getText());
+                break;
+            }
+        }
         Thread.sleep(3000);
         try {
 
@@ -869,6 +854,7 @@ public class AveaMerkez {
         }
         WebElement aktifBtn = driver.findElement(By.cssSelector("input[value='Aktif Et']"));
         Thread.sleep(2000);
+        silNonNtyetersizBakiyeMsisdn.join(4*60000);
         aktifBtn.click();
         Thread.sleep(2000);
         driver.switchTo().alert().accept();
@@ -889,6 +875,7 @@ public class AveaMerkez {
         NonNtyetersizBakiyeKayitSMS = NonNtyetersizBakiyeKayitSMS.replace("DD/MM/YYYY saat HH:MI'a", gun.replace(".", "/") + " saat 23:59'a");
 
         System.out.println("Beklenen NonNT yetersizBakiyeKayitSMS i: " + NonNtyetersizBakiyeKayitSMS);
+        System.out.println("actual NonNT yetersizBakiyeKayitSMS i: " + message2);
         String pattern = ".*" + NonNtyetersizBakiyeKayitSMS + "\\.?\\.?\\.?\\s*";
         // Create a Pattern object
         Pattern r = Pattern.compile(pattern);
@@ -897,7 +884,7 @@ public class AveaMerkez {
         Matcher m = r.matcher(message2);
         System.out.println("Beklenen regex Patterni:" + pattern);
         if (bakiyesizAlim.equalsIgnoreCase("evet"))
-        checkService(NonNtyetersizBakiyeMsisdn,NonNT_servis,"PASSIVE/STD/FOLLOW");
+            checkService(NonNtyetersizBakiyeMsisdn,NonNT_servis,"PASSIVE/STD/FOLLOW");
 
         Assert.assertTrue("NonNT_yetersizBakiyeKayit Mesaji yanlis..:" + message2, m.matches());
 
@@ -1002,7 +989,7 @@ public class AveaMerkez {
         // Create a Pattern object
         //Pattern r = Pattern.compile(pattern);
         Pattern r = Pattern.compile("[0-9]{2}+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-testStr="500 dk";
+        testStr="500 dk";
         // Now create matcher object.
         Matcher m = r.matcher(testStr);
         if (m.matches()) {
@@ -1100,7 +1087,7 @@ testStr="500 dk";
             try {
                 //Check that the element size filtered
                 driver.findElement(By.cssSelector(css));
-                    return false;
+                return false;
 
             } catch (Exception e) {
                 return true;
@@ -1173,11 +1160,18 @@ testStr="500 dk";
     public BigDecimal getMoney(String msisdn) {
         BigDecimal money = null;
         String resp = postSOAPXML(msisdn);
+        System.out.println("getMoney sonucu");
+        System.out.println(resp);
         Matcher m = Pattern.compile("<balanceName>BLP_Main</balanceName><measure>TRY</measure><unitType>CUR</unitType><currency>TRY</currency><balance>([^<]*)")
                 .matcher(resp);
         while (m.find()) {
             money =new BigDecimal(m.group(1));
         }
+        m = Pattern.compile("<Message>BSG_10000:SUCCESS</Message>").matcher(resp);
+        assertTrue("BSG_10000:SUCCESS alinamadi", m.find());
+
+        if (money == null)
+            return new BigDecimal(0);
         return money;
     }
 
@@ -1190,7 +1184,7 @@ testStr="500 dk";
         Matcher m = Pattern.compile("<soldProducts><productName>"+servis+"</productName><state>"+state+"</state><type>Package</type>")
                 .matcher(resp);
 
-            assumeTrue(servis+" "+state+" bulunamadi",m.find());
+        assertTrue(servis+" "+state+" bulunamadi",m.find());
 
     }
 

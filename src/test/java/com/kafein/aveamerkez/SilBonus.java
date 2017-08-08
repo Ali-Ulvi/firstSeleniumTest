@@ -15,10 +15,10 @@ import java.util.Properties;
 
 public class SilBonus extends Thread {
     String no, ip, pw;
-
+    Config c;
     public SilBonus(String no) {
         this.no = no;
-        Config c=Config.config;
+         c=Config.config;
         this.pw = c.mrte1Pw;
         this.ip = c.ip;
     }
@@ -41,7 +41,7 @@ public class SilBonus extends Thread {
 
                 ChannelExec channel = (ChannelExec) session.openChannel("exec");
                 BufferedReader in = new BufferedReader(new InputStreamReader(channel.getInputStream()));
-                channel.setCommand("source .profile;tumBonusSil " + no );
+                channel.setCommand("source .profile;tumBonusSil " + no +" " + c.sinirsiz);
                 channel.connect();
 
                 String msg = null;
